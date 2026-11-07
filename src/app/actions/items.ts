@@ -6,7 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { CATEGORIES, CONDITIONS, MAX_PHOTOS, MIN_PHOTOS, TIERS } from "@/lib/config";
+import { CATEGORIES, CONDITIONS, MAX_PHOTOS, MIN_PHOTOS, NEEDS_PLATFORM, PLATFORMS, TIERS } from "@/lib/config";
 import { checkPackLimits, postageCents, sortDims } from "@/lib/postage";
 import { saveImage } from "@/lib/storage";
 import { chargePostage, latestValuation, refundPostage } from "@/lib/exchange";
@@ -18,6 +18,7 @@ const itemSchema = z.object({
   title: z.string().trim().min(3, "Give your item a name.").max(100),
   category: z.enum(CATEGORIES.map((c) => c.id) as [string, ...string[]], { message: "Pick a category." }),
   brand: z.string().trim().max(80).optional(),
+  platform: z.string().optional(),
   condition: z.enum(CONDITIONS.map((c) => c.id) as [string, ...string[]], { message: "Pick a condition." }),
   description: z.string().trim().min(10, "Describe the item (10+ characters).").max(1000),
   functionNote: z.string().trim().min(3, "Tell us how you checked it works / is complete.").max(500),
@@ -39,6 +40,8 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
   if (fd.get("accessoriesComplete") !== "on") return { error: "Only complete items with all parts can be swapped." };
   if (fd.get("worksConfirm") !== "on") return { error: "Please confirm the item works and is as described." };
 
+  const platform = d.category === NEEDS_PLATFORM ? d.platform : null;
+  if (d.category === NEEDS_PLATFORM && !PLATFORMS.some((p) => p.id === platform)) return { error: "Pick the game's platform." };
   const weightOz = d.weightLb * 16 + d.weightOzPart;
   const dims = sortDims(d.d1, d.d2, d.d3);
   const packErr = checkPackLimits({ weightOz, dims });
@@ -66,6 +69,7 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
         title: d.title,
         category: d.category,
         brand: d.brand || null,
+        platform,
         condition: d.condition,
         description: d.description,
         functionNote: d.functionNote,

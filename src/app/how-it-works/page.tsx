@@ -14,7 +14,8 @@ export default function Page() {
         <li>Open categories: {CATEGORIES.map((c) => c.label).join(", ")}.</li>
         <li>Complete, clean and fully working. Describe any wear honestly.</li>
         <li>Packed weight up to {MAX_WEIGHT_LB} lb; box up to {MAX_DIMS_IN.join(" × ")} inches.</li>
-        <li>Not accepted: anything with batteries or a plug, liquids, food, medicine, fragile items, weapons, recalled or counterfeit goods.</li>
+        <li>Books, discs and games: discs must play without skipping or errors; cartridges must be genuine. Games are only matched with people who own that platform. Low-value books and discs can be bundled into one box.</li>
+        <li>Not accepted: pirated or burned copies, vinyl records, anything with batteries or a plug, liquids, food, medicine, fragile items, weapons, recalled or counterfeit goods.</li>
       </ul>
 
       <h2>2. Value and tiers</h2>

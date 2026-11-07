@@ -6,10 +6,10 @@ type Cat = { id: string; label: string };
 type U = {
   displayName: string; addressName: string | null; addressLine1: string | null; addressLine2: string | null;
   city: string | null; state: string | null; zip: string | null; bio: string | null; interests: string | null;
-  exclusions: string | null; wantedCategories: string[];
+  exclusions: string | null; wantedCategories: string[]; platforms: string[];
 };
 
-export function ProfileForm({ user, categories, onboarding }: { user: U; categories: Cat[]; onboarding?: boolean }) {
+export function ProfileForm({ user, categories, platforms, onboarding }: { user: U; categories: Cat[]; platforms: Cat[]; onboarding?: boolean }) {
   const [state, action, pending] = useActionState(saveProfile, undefined);
   const v = (k: keyof U) => (user[k] as string | null) ?? "";
   return (
@@ -28,6 +28,18 @@ export function ProfileForm({ user, categories, onboarding }: { user: U; categor
             ))}
           </div>
           <p className="hint">Leave all unticked to receive any open category.</p>
+        </fieldset>
+        <fieldset>
+          <legend className="field-label">Game platforms you own</legend>
+          <div className="flex flex-wrap gap-2">
+            {platforms.map((c) => (
+              <label key={c.id} className="flex items-center gap-2 rounded-full border border-ink/15 bg-white px-3 py-1.5 text-sm has-[:checked]:border-plum has-[:checked]:bg-plum-soft">
+                <input type="checkbox" name="platforms" value={c.id} defaultChecked={user.platforms.includes(c.id)} className="accent-plum" />
+                {c.label}
+              </label>
+            ))}
+          </div>
+          <p className="hint">You'll only receive video games for platforms you tick here. Tick none to never receive games.</p>
         </fieldset>
         <div>
           <label className="field-label" htmlFor="interests">Your interests</label>

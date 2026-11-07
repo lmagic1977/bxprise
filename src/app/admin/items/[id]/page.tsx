@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
-import { categoryLabel, conditionLabel, TIERS } from "@/lib/config";
+import { categoryLabel, conditionLabel, platformLabel, TIERS } from "@/lib/config";
 import { usd } from "@/lib/money";
 import { getReputation } from "@/lib/reputation";
 import { reviewItem } from "@/app/actions/admin";
@@ -21,7 +21,7 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="card space-y-3">
         <div className="flex items-start justify-between"><h1>#{it.id} {it.title}</h1><ItemStatus s={it.status} /></div>
-        <p className="text-sm text-ink/60">{categoryLabel(it.category)} · {conditionLabel(it.condition)} · {it.brand ?? "no brand"} · owner {owner.displayName} (rep {rep.score}, {rep.tier}, {rep.completed} swaps)</p>
+        <p className="text-sm text-ink/60">{categoryLabel(it.category)}{it.platform ? ` (${platformLabel(it.platform)})` : ""} · {conditionLabel(it.condition)} · {it.brand ?? "no brand"} · owner {owner.displayName} (rep {rep.score}, {rep.tier}, {rep.completed} swaps)</p>
         <Photos ids={it.photoIds} size="h-36 w-36" />
         <p className="whitespace-pre-line text-sm">{it.description}</p>
         <p className="text-sm"><b>Checked:</b> {it.functionNote}</p>

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { CATEGORIES, CONDITIONS, MAX_DIMS_IN, MAX_WEIGHT_LB } from "@/lib/config";
+import { BUNDLE_HINT, CATEGORIES, CONDITIONS, MAX_DIMS_IN, MAX_WEIGHT_LB, PLATFORMS } from "@/lib/config";
 import { ItemForm, type Prefill } from "@/components/ItemForm";
 
 export default async function NewItem({ searchParams }: PageProps<"/items/new">) {
@@ -16,7 +16,7 @@ export default async function NewItem({ searchParams }: PageProps<"/items/new">)
     if (mine?.receivedAt && theirs) {
       const [it] = await db.select().from(schema.items).where(eq(schema.items.id, theirs.sendItemId));
       prefill = {
-        title: it.title, category: it.category, brand: it.brand ?? undefined, condition: it.condition,
+        title: it.title, category: it.category, brand: it.brand ?? undefined, platform: it.platform ?? undefined, condition: it.condition,
         description: it.description, functionNote: "",
         weightLb: Math.floor(it.weightOz / 16), weightOzPart: Math.round((it.weightOz % 16) * 10) / 10,
         d1: it.lengthIn, d2: it.widthIn, d3: it.heightIn, repooledFrom: from,
@@ -32,6 +32,8 @@ export default async function NewItem({ searchParams }: PageProps<"/items/new">)
       <ItemForm
         categories={CATEGORIES.map(({ id, label }) => ({ id, label }))}
         conditions={CONDITIONS.map(({ id, label }) => ({ id, label }))}
+        platforms={PLATFORMS.map(({ id, label }) => ({ id, label }))}
+        bundleHints={BUNDLE_HINT}
         limits={{ lb: MAX_WEIGHT_LB, dims: [...MAX_DIMS_IN] }}
         prefill={prefill}
       />

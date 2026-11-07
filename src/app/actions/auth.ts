@@ -13,7 +13,7 @@ import {
   requireUser,
   verifyPassword,
 } from "@/lib/auth";
-import { CATEGORIES } from "@/lib/config";
+import { CATEGORIES, PLATFORMS } from "@/lib/config";
 import { audit } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: string } | undefined;
@@ -83,11 +83,13 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
   const parsed = profileSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const wanted = fd.getAll("wanted").map(String).filter((c) => CATEGORIES.some((x) => x.id === c));
+  const platforms = fd.getAll("platforms").map(String).filter((c) => PLATFORMS.some((x) => x.id === c));
   await db
     .update(schema.users)
     .set({
       ...parsed.data,
       wantedCategories: wanted,
+      platforms,
       ...(onboarding ? { ageConfirmed: true, rulesAcceptedAt: new Date() } : {}),
     })
     .where(eq(schema.users.id, user.id));

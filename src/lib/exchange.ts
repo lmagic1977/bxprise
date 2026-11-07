@@ -9,6 +9,8 @@ import {
   SUSPEND_AFTER_FRAUD,
   conditionLabel,
   categoryLabel,
+  platformLabel,
+  NEEDS_PLATFORM,
 } from "./config";
 import { postageCents, type Pack } from "./postage";
 import { addReputation, getReputation, getReputations, tierOfValue, tierRank } from "./reputation";
@@ -119,8 +121,10 @@ function excluded(owner: typeof users.$inferSelect, other: typeof items.$inferSe
   return words.some((w) => text.includes(w));
 }
 
-const wants = (owner: typeof users.$inferSelect, category: string) =>
-  owner.wantedCategories.length === 0 || owner.wantedCategories.includes(category);
+// A receiver accepts an item if the category is wanted and, for games, they own the platform.
+const wants = (owner: typeof users.$inferSelect, it: typeof items.$inferSelect) =>
+  (owner.wantedCategories.length === 0 || owner.wantedCategories.includes(it.category)) &&
+  (it.category !== NEEDS_PLATFORM || (!!it.platform && owner.platforms.includes(it.platform)));
 
 export async function runMatching(adminId: number) {
   const rows = await db
@@ -157,7 +161,7 @@ export async function runMatching(adminId: number) {
       if (tierOfValue(b.val.midCents) !== tierA) return false;
       const rank = tierRank(tierA);
       if (rank > tierRank(reps.get(a.ownerId)!.tier) || rank > tierRank(reps.get(b.ownerId)!.tier)) return false;
-      if (!wants(a.owner, b.category) || !wants(b.owner, a.category)) return false;
+      if (!wants(a.owner, b) || !wants(b.owner, a)) return false;
       if (excluded(a.owner, b) || excluded(b.owner, a)) return false;
       return true;
     });
@@ -417,7 +421,7 @@ export async function resolveDispute(
 // What one side may see about the other side's item BEFORE the swap is done.
 export function blindView(it: typeof items.$inferSelect, v: typeof valuations.$inferSelect) {
   return {
-    category: categoryLabel(it.category),
+    category: it.platform ? `${categoryLabel(it.category)} · ${platformLabel(it.platform)}` : categoryLabel(it.category),
     valueRange: [v.lowCents, v.highCents] as const,
     condition: conditionLabel(it.condition),
   };

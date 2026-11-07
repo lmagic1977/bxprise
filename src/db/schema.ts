@@ -30,6 +30,7 @@ export const users = pgTable("users", {
   interests: text("interests"),
   wantedCategories: jsonb("wanted_categories").$type<string[]>().notNull().default([]),
   exclusions: text("exclusions"), // comma-separated keywords
+  platforms: jsonb("platforms").$type<string[]>().notNull().default([]), // consoles the user owns
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -57,6 +58,7 @@ export const items = pgTable(
     title: text("title").notNull(),
     category: text("category").notNull(),
     brand: text("brand"),
+    platform: text("platform"), // required for video games
     condition: text("condition").notNull(), // new | like_new | good
     description: text("description").notNull(),
     functionNote: text("function_note").notNull(),

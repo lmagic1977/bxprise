@@ -1,18 +1,20 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createItem } from "@/app/actions/items";
 import { PhotoInput } from "./PhotoInput";
 
 type Opt = { id: string; label: string };
 export type Prefill = Partial<{
-  title: string; category: string; brand: string; condition: string; description: string; functionNote: string;
+  title: string; category: string; brand: string; platform: string; condition: string; description: string; functionNote: string;
   weightLb: number; weightOzPart: number; d1: number; d2: number; d3: number; repooledFrom: number;
 }>;
 
-export function ItemForm({ categories, conditions, limits, prefill = {} }: {
-  categories: Opt[]; conditions: Opt[]; limits: { lb: number; dims: number[] }; prefill?: Prefill;
+export function ItemForm({ categories, conditions, platforms, bundleHints, limits, prefill = {} }: {
+  categories: Opt[]; conditions: Opt[]; platforms: Opt[]; bundleHints: Record<string, string>;
+  limits: { lb: number; dims: number[] }; prefill?: Prefill;
 }) {
   const [state, action, pending] = useActionState(createItem, undefined);
+  const [category, setCategory] = useState(prefill.category ?? "");
   return (
     <form action={action} className="space-y-6">
       {prefill.repooledFrom && <input type="hidden" name="repooledFrom" value={prefill.repooledFrom} />}
@@ -22,13 +24,22 @@ export function ItemForm({ categories, conditions, limits, prefill = {} }: {
           <input className="input" id="title" name="title" required defaultValue={prefill.title} placeholder="e.g. Wingspan + European expansion" /></div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div><label className="field-label" htmlFor="category">Category</label>
-            <select className="input" id="category" name="category" required defaultValue={prefill.category ?? ""}>
+            <select className="input" id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="" disabled>Choose…</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select></div>
           <div><label className="field-label" htmlFor="brand">Brand / model (optional)</label>
             <input className="input" id="brand" name="brand" defaultValue={prefill.brand} /></div>
         </div>
+        {bundleHints[category] && <p className="rounded-xl bg-tangerine-soft p-3 text-sm text-orange-900">{bundleHints[category]}</p>}
+        {category === "video_games" && (
+          <div><label className="field-label" htmlFor="platform">Platform</label>
+            <select className="input" id="platform" name="platform" required defaultValue={prefill.platform ?? ""}>
+              <option value="" disabled>Choose…</option>
+              {platforms.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
+            <p className="hint">Only people who own this platform will be matched with it.</p></div>
+        )}
         <div><label className="field-label" htmlFor="condition">Condition</label>
           <select className="input" id="condition" name="condition" required defaultValue={prefill.condition ?? ""}>
             <option value="" disabled>Choose…</option>

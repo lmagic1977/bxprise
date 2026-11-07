@@ -4,7 +4,31 @@ export const CATEGORIES = [
   { id: "board_games_puzzles", label: "Board games & puzzles", open: true },
   { id: "toys_figures", label: "Designer toys & figures", open: true },
   { id: "craft_yarn", label: "Craft supplies & yarn", open: true },
+  { id: "books", label: "Books", open: true },
+  { id: "movies_music", label: "Movies & music (DVD, Blu-ray, CD)", open: true },
+  { id: "video_games", label: "Video games (discs & cartridges)", open: true },
 ] as const;
+
+// Video games only match people who own the platform.
+export const PLATFORMS = [
+  { id: "ps5", label: "PlayStation 5" },
+  { id: "ps4", label: "PlayStation 4" },
+  { id: "switch", label: "Nintendo Switch / Switch 2" },
+  { id: "xbox_series", label: "Xbox Series X|S" },
+  { id: "xbox_one", label: "Xbox One" },
+  { id: "pc", label: "PC" },
+  { id: "retro", label: "Retro / older consoles" },
+] as const;
+export const platformLabel = (id: string | null | undefined) =>
+  PLATFORMS.find((p) => p.id === id)?.label ?? id ?? "";
+export const NEEDS_PLATFORM = "video_games";
+// Low-value categories where bundling several items into one box is encouraged.
+export const BUNDLE_HINT: Record<string, string> = {
+  books: "Single books are often under the $15 minimum — bundle 3–5 into one box.",
+  movies_music: "Bundle several discs into one box to reach the $15 minimum. Discs must play without skipping, in their cases.",
+  video_games: "Discs must play without errors; cartridges must be genuine. Include the case if you have it.",
+  board_games_puzzles: "Small puzzles can be bundled 2–3 to a box.",
+};
 
 export type CategoryId = (typeof CATEGORIES)[number]["id"];
 

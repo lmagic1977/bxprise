@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { CATEGORIES } from "@/lib/config";
+import { CATEGORIES, PLATFORMS } from "@/lib/config";
 import { ProfileForm } from "@/components/ProfileForm";
 
 export default async function Page() {
@@ -10,7 +10,7 @@ export default async function Page() {
         <h1>Set up your swaps</h1>
         <p className="mt-1 text-ink/70">Tell us what you'd love to unbox — and what you never want to see.</p>
       </div>
-      <ProfileForm user={user} categories={CATEGORIES.map(({ id, label }) => ({ id, label }))} onboarding />
+      <ProfileForm user={user} categories={CATEGORIES.map(({ id, label }) => ({ id, label }))} platforms={PLATFORMS.map(({ id, label }) => ({ id, label }))} onboarding />
     </div>
   );
 }
