@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  experimental: {
+    serverActions: {
+      // Photos are resized in the browser before upload; this leaves headroom
+      // under Vercel's 4.5 MB function request limit.
+      bodySizeLimit: "4mb",
+    },
+  },
   turbopack: {
     rules: {
       "*.css": {
