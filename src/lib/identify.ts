@@ -20,6 +20,9 @@ Steps:
  "sources":[{"title":string,"url":string}]}
 
 Rules:
+- title: the short product name as printed on the box plus edition if it matters, at most 60 characters (e.g. "Catan (5th edition)"). No catalog numbers, no "a.k.a.".
+- brand: just the maker or publisher name, at most 30 characters (e.g. "Catan Studio").
+- notes: at most 2 short sentences.
 - Never invent numbers. If you did not find a source for a price, set both prices and priceBasis to null.
 - Product dims/weight are for the item's own retail box; null if unknown.
 - Prices are for used, complete copies; mention in priceBasis how many sold listings you saw and when.
