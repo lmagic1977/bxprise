@@ -69,6 +69,10 @@ export const REPUTATION_POINTS = {
 } as const;
 export const SUSPEND_AFTER_FRAUD = 2;
 
+// Tiers whose receivers get a riddle clue once a swap locks.
+export const RIDDLE_TIERS: readonly string[] = ["plus"];
+export const RIDDLE_MODEL = process.env.RIDDLE_MODEL ?? "claude-haiku-5-5";
+
 export const ACCEPT_WINDOW_HOURS = 48;
 export const SHIP_WINDOW_DAYS = 4;
 export const REVIEW_AUTO_PUBLISH_DAYS = 7;

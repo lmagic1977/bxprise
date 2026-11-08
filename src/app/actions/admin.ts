@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/auth";
 import { audit } from "@/lib/audit";
 import { discardBatch, markPickedUp, publishBatch, refundPostage, resolveDispute, runMatching } from "@/lib/exchange";
 import { toCents } from "@/lib/money";
+import { generateRiddle, riddleLeaks } from "@/lib/riddle";
 import type { FormState } from "./auth";
 
 const valSchema = z.object({
@@ -38,13 +39,20 @@ export async function reviewItem(itemId: number, _: FormState, fd: FormData): Pr
     if (!p.success) return { error: p.error.issues[0].message };
     const { low, high, mid, basis, confidence } = p.data;
     if (!(low <= mid && mid <= high)) return { error: "Need low ≤ reference ≤ high." };
+    let riddle = String(fd.get("riddle") ?? "").trim().slice(0, 120);
+    let riddleSource: string | null = riddle ? (riddle === it.riddle ? it.riddleSource : "admin") : null;
+    if (riddle && riddleLeaks(riddle, it)) return { error: `The riddle gives it away ("${riddleLeaks(riddle, it)}"). Reword it.` };
+    if (!riddle) {
+      riddle = (await generateRiddle(it).catch(() => null)) ?? "";
+      riddleSource = riddle ? "ai" : null;
+    }
     const [prev] = await db.select().from(schema.valuations).where(eq(schema.valuations.itemId, itemId)).orderBy(desc(schema.valuations.version)).limit(1);
     await db.transaction(async (tx) => {
       await tx.insert(schema.valuations).values({
         itemId, version: (prev?.version ?? 0) + 1, lowCents: toCents(low), highCents: toCents(high), midCents: toCents(mid),
         basis, confidence, createdBy: admin.id,
       });
-      await tx.update(schema.items).set({ status: "valuation_ready", adminNote: note || null }).where(eq(schema.items.id, itemId));
+      await tx.update(schema.items).set({ status: "valuation_ready", adminNote: note || null, riddle: riddle || null, riddleSource }).where(eq(schema.items.id, itemId));
       await audit(admin.id, "valuation.create", "item", itemId, { low, high, mid, confidence }, tx);
     });
   }
@@ -90,4 +98,17 @@ export async function resolve(disputeId: number, _: FormState, fd: FormData): Pr
   await resolveDispute(disputeId, admin.id, resolution, fraud);
   revalidatePath("/admin/disputes");
   return { ok: "Resolved." };
+}
+
+export async function regenerateRiddle(itemId: number): Promise<FormState> {
+  const admin = await requireAdmin();
+  const [it] = await db.select().from(schema.items).where(eq(schema.items.id, itemId));
+  if (!it) return { error: "Not found." };
+  const r = await generateRiddle(it).catch((e: Error) => e);
+  if (r instanceof Error) return { error: r.message };
+  if (!r) return { error: process.env.ANTHROPIC_API_KEY ? "AI couldn't write a clue that doesn't give it away. Write one by hand." : "AI riddles need ANTHROPIC_API_KEY. Write one by hand for now." };
+  await db.update(schema.items).set({ riddle: r, riddleSource: "ai" }).where(eq(schema.items.id, itemId));
+  await audit(admin.id, "riddle.generate", "item", itemId, { riddle: r });
+  revalidatePath(`/admin/items/${itemId}`);
+  return { ok: `New clue: ${r}` };
 }

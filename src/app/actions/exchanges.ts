@@ -100,3 +100,13 @@ export async function report(exchangeId: number, _: FormState, fd: FormData): Pr
   if (parsed.data.reason === "lost" && !parsed.data.lostOption) return { error: "Choose what you'd like to happen." };
   return wrap(() => openDispute(exchangeId, user.id, parsed.data), exchangeId, "Report sent. Our team will follow up.");
 }
+
+export async function guess(exchangeId: number, _: FormState, fd: FormData): Promise<FormState> {
+  const { p } = await myParty(exchangeId);
+  if (p.receivedAt) return { error: "Too late — you've already opened it!" };
+  const g = String(fd.get("guess") ?? "").trim().slice(0, 100);
+  if (g.length < 2) return { error: "Type your guess." };
+  await db.update(schema.exchangeParties).set({ guess: g }).where(eq(schema.exchangeParties.id, p.id));
+  revalidatePath(path(exchangeId));
+  return { ok: "Guess locked in. We'll reveal it when you open the box." };
+}

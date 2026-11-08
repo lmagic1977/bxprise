@@ -1,6 +1,7 @@
 "use client";
 import { useActionState } from "react";
 import { saveProfile } from "@/app/actions/auth";
+import { keepOnSubmit } from "./keepForm";
 
 type Cat = { id: string; label: string };
 type U = {
@@ -13,7 +14,7 @@ export function ProfileForm({ user, categories, platforms, onboarding }: { user:
   const [state, action, pending] = useActionState(saveProfile, undefined);
   const v = (k: keyof U) => (user[k] as string | null) ?? "";
   return (
-    <form action={action} className="space-y-6">
+    <form onSubmit={keepOnSubmit(action)} className="space-y-6">
       {onboarding && <input type="hidden" name="onboarding" value="1" />}
       <section className="card space-y-4">
         <h2>What you'd like to get</h2>

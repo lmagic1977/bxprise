@@ -2,6 +2,7 @@
 import { useActionState, useState } from "react";
 import { createItem } from "@/app/actions/items";
 import { PhotoInput } from "./PhotoInput";
+import { keepOnSubmit } from "./keepForm";
 
 type Opt = { id: string; label: string };
 export type Prefill = Partial<{
@@ -16,7 +17,7 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
   const [state, action, pending] = useActionState(createItem, undefined);
   const [category, setCategory] = useState(prefill.category ?? "");
   return (
-    <form action={action} className="space-y-6">
+    <form onSubmit={keepOnSubmit(action)} className="space-y-6">
       {prefill.repooledFrom && <input type="hidden" name="repooledFrom" value={prefill.repooledFrom} />}
       <section className="card space-y-4">
         <h2>The item</h2>

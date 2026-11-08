@@ -65,6 +65,8 @@ export const items = pgTable(
     accessoriesComplete: boolean("accessories_complete").notNull(),
     wearNote: text("wear_note"),
     story: text("story"), // note/card for whoever receives it, revealed after the swap
+    riddle: text("riddle"), // clue for Plus-tier receivers, shown only after the swap locks
+    riddleSource: text("riddle_source"), // ai | admin
     weightOz: real("weight_oz").notNull(), // packed weight
     lengthIn: real("length_in").notNull(), // packed dims, sorted desc
     widthIn: real("width_in").notNull(),
@@ -150,6 +152,7 @@ export const exchangeParties = pgTable(
     packingPhotoId: text("packing_photo_id"),
     pickedUpAt: timestamp("picked_up_at", { withTimezone: true }), // carrier scan, not label creation
     receivedAt: timestamp("received_at", { withTimezone: true }),
+    guess: text("guess"), // receiver's guess from the riddle, before unboxing
   },
   (t) => [uniqueIndex("party_exchange_user").on(t.exchangeId, t.userId)],
 );

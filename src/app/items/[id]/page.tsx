@@ -90,6 +90,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
         {it.wearNote && <p className="text-sm"><span className="text-ink/60">Wear:</span> {it.wearNote}</p>}
         <p className="text-sm text-ink/60">Packed: {Math.floor(it.weightOz / 16)} lb {Math.round(it.weightOz % 16)} oz · {it.lengthIn} × {it.widthIn} × {it.heightIn} in</p>
         {it.story && <p className="rounded-xl bg-plum-soft p-3 text-sm">Note to recipient: {it.story}</p>}
+        {it.riddle && <p className="text-sm"><span className="text-ink/60">Riddle clue for Plus-tier receivers:</span> <i>{it.riddle}</i></p>}
       </section>
 
       <section className="card space-y-2 text-sm">

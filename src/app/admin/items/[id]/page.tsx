@@ -4,8 +4,9 @@ import { db, schema } from "@/db";
 import { categoryLabel, conditionLabel, platformLabel, TIERS } from "@/lib/config";
 import { usd } from "@/lib/money";
 import { getReputation } from "@/lib/reputation";
-import { reviewItem } from "@/app/actions/admin";
-import { ActionForm } from "@/components/ActionButton";
+import { regenerateRiddle, reviewItem } from "@/app/actions/admin";
+import { riddleAvailable } from "@/lib/riddle";
+import { ActionButton, ActionForm } from "@/components/ActionButton";
 import { Photos } from "@/components/Photos";
 import { ItemStatus } from "@/components/Status";
 
@@ -27,6 +28,11 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
         <p className="text-sm"><b>Checked:</b> {it.functionNote}</p>
         {it.wearNote && <p className="text-sm"><b>Wear:</b> {it.wearNote}</p>}
         <p className="text-sm"><b>Packed:</b> {(it.weightOz / 16).toFixed(2)} lb · {it.lengthIn}×{it.widthIn}×{it.heightIn} in · from {it.shipFromZip} · postage held {usd(it.postageHeldCents)}</p>
+        <div className="rounded-xl bg-plum-soft p-3 text-sm">
+          <p><b>Riddle clue</b> {it.riddle ? <>({it.riddleSource === "ai" ? "AI" : "written by admin"}): <i>{it.riddle}</i></> : <span className="text-ink/60">none yet</span>}</p>
+          <div className="mt-2"><ActionButton action={regenerateRiddle.bind(null, id)} className="btn-ghost !py-1">{it.riddle ? "Rewrite with AI" : "Generate with AI"}</ActionButton></div>
+          {!riddleAvailable() && <p className="hint">AI is off until ANTHROPIC_API_KEY is set — you can type a clue in the form instead.</p>}
+        </div>
         {it.adminNote && <p className="whitespace-pre-line rounded-xl bg-cream p-3 text-sm">{it.adminNote}</p>}
         {vals.length > 0 && (
           <div className="text-sm"><b>Valuation history</b>
@@ -52,6 +58,8 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
           <select className="input" name="confidence" defaultValue="medium">
             <option value="low">Low confidence</option><option value="medium">Medium confidence</option><option value="high">High confidence</option>
           </select>
+          <input className="input" name="riddle" maxLength={120} defaultValue={it.riddle ?? ""} placeholder="Riddle clue — leave blank to let AI write one" />
+          <p className="hint !mt-0">Describe what it does or how it feels, never what it is. e.g. a padlock → “Something that keeps your things safe.”</p>
           <textarea className="input" name="note" rows={3} placeholder="Note to owner (required for info request / reject)" />
         </ActionForm>
       </section>

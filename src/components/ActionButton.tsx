@@ -1,6 +1,7 @@
 "use client";
 import { useActionState } from "react";
 import type { FormState } from "@/app/actions/auth";
+import { keepOnSubmit } from "./keepForm";
 
 export function ActionButton({
   action, children, className = "btn-primary", confirm,
@@ -20,7 +21,7 @@ export function ActionForm({
 }: { action: (s: FormState, fd: FormData) => Promise<FormState>; children: React.ReactNode; submit: string; className?: string }) {
   const [state, run, pending] = useActionState(action, undefined);
   return (
-    <form action={run} className={className}>
+    <form onSubmit={keepOnSubmit(run)} className={className}>
       {children}
       {state?.error && <p className="text-sm text-red-700" role="alert">{state.error}</p>}
       {state?.ok && <p className="text-sm text-green-700">{state.ok}</p>}

@@ -2,11 +2,12 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { login, signup } from "@/app/actions/auth";
+import { keepOnSubmit } from "./keepForm";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [state, action, pending] = useActionState(mode === "login" ? login : signup, undefined);
   return (
-    <form action={action} className="card mx-auto max-w-sm space-y-4">
+    <form onSubmit={keepOnSubmit(action)} className="card mx-auto max-w-sm space-y-4">
       <h1>{mode === "login" ? "Welcome back" : "Join BXprise"}</h1>
       {mode === "signup" && (
         <div>

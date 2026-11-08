@@ -21,7 +21,7 @@ export default function Page() {
       <h2>2. Value and tiers</h2>
       <p>Our team gives each item a value range. You confirm it before your item joins the pool. Values are a guide for matching, not an appraisal or a promise of resale value.</p>
       <ul className="list-disc pl-5">
-        {TIERS.map((t) => <li key={t.id}><b>{t.label}</b> — {usd(t.minCents)} to {usd(t.maxCents)}. {t.minCompleted ? `Unlocks after ${t.minCompleted} completed swaps with a good reputation.` : "Open to everyone."}</li>)}
+        {TIERS.map((t) => <li key={t.id}><b>{t.label}</b> — {usd(t.minCents)} to {usd(t.maxCents)}. {t.minCompleted ? `Unlocks after ${t.minCompleted} completed swaps with a good reputation. Plus members also get a riddle clue about their box once the swap is locked — guess before you open it!` : "Open to everyone."}</li>)}
       </ul>
 
       <h2>3. Postage</h2>

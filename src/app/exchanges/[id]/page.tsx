@@ -4,7 +4,7 @@ import { requireOnboardedUser } from "@/lib/auth";
 import { exchangeForUser, housekeeping } from "@/lib/exchange";
 import { SHIP_WINDOW_DAYS, TEST_MODE, categoryLabel } from "@/lib/config";
 import { usd } from "@/lib/money";
-import { receive, report, respond, review, simulatePickup, uploadPackingPhoto } from "@/app/actions/exchanges";
+import { guess, receive, report, respond, review, simulatePickup, uploadPackingPhoto } from "@/app/actions/exchanges";
 import { ActionButton, ActionForm } from "@/components/ActionButton";
 import { ExchangeStatus } from "@/components/Status";
 import { Photos } from "@/components/Photos";
@@ -20,7 +20,7 @@ export default async function ExchangePage({ params }: PageProps<"/exchanges/[id
   const id = Number((await params).id);
   const d = await exchangeForUser(id, user.id);
   if (!d) notFound();
-  const { ex, mine, theirs, myItem, blind, reveal, myReview } = d;
+  const { ex, mine, theirs, myItem, blind, reveal, myReview, riddle, riddleTeaser } = d;
   const s = ex.status;
   const shipBy = ex.lockedAt ? new Date(ex.lockedAt.getTime() + SHIP_WINDOW_DAYS * 864e5) : null;
 
@@ -71,6 +71,23 @@ export default async function ExchangePage({ params }: PageProps<"/exchanges/[id
         </section>
       )}
 
+      {riddle && !reveal && (
+        <section className="card space-y-3 border-plum bg-plum-soft/60">
+          <p className="text-xs uppercase tracking-wide text-plum">Your Plus-tier clue</p>
+          <p className="text-xl font-semibold italic">“{riddle}”</p>
+          {mine.guess ? (
+            <p className="text-sm">Your guess: <b>{mine.guess}</b> — find out when you open it.</p>
+          ) : (
+            <ActionForm action={guess.bind(null, id)} submit="Lock in my guess" className="flex flex-wrap items-start gap-2">
+              <input className="input max-w-xs" name="guess" maxLength={100} placeholder="What do you think it is?" />
+            </ActionForm>
+          )}
+        </section>
+      )}
+      {riddleTeaser && !reveal && (
+        <p className="rounded-xl bg-ink/5 p-3 text-sm text-ink/70">🔒 Your partner&apos;s box comes with a riddle clue. Reach the Plus tier to see clues while your box travels.</p>
+      )}
+
       {["locked", "in_transit", "disputed"].includes(s) && (
         <section className="card space-y-4">
           <h2>Shipping</h2>
@@ -104,6 +121,7 @@ export default async function ExchangePage({ params }: PageProps<"/exchanges/[id
           <h2>🎉 Your surprise: {reveal.item.title}</h2>
           <Photos ids={reveal.item.photoIds} size="h-24 w-24" />
           <p className="text-sm">{reveal.item.description}</p>
+          {riddle && <p className="text-sm">The clue was <i>“{riddle}”</i>{mine.guess ? <> — you guessed <b>{mine.guess}</b>.</> : "."}</p>}
           {reveal.item.story && <blockquote className="rounded-xl bg-plum-soft p-3 text-sm italic">“{reveal.item.story}”</blockquote>}
           <p className="text-sm">From <b>{reveal.sender.displayName}</b>{reveal.sender.interests ? ` · into ${reveal.sender.interests}` : ""}</p>
           {reveal.sender.bio && <p className="text-sm text-ink/70">{reveal.sender.bio}</p>}

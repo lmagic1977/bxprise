@@ -14,6 +14,7 @@ import {
 } from "./config";
 import { postageCents, type Pack } from "./postage";
 import { addReputation, getReputation, getReputations, tierOfValue, tierRank } from "./reputation";
+import { RIDDLE_TIERS } from "./config";
 
 const { exchanges, exchangeParties: parties, items, itemLocks, valuations, payments, users, reviews, disputes } =
   schema;
@@ -447,7 +448,13 @@ export async function exchangeForUser(exchangeId: number, userId: number) {
     ? (await db.select().from(reviews).where(and(eq(reviews.exchangeId, exchangeId), eq(reviews.reviewerId, theirs.userId))))[0]
     : undefined;
   const ds = await db.select().from(disputes).where(eq(disputes.exchangeId, exchangeId));
+  const myTier = (await getReputation(userId)).tier;
+  const riddleEligible = RIDDLE_TIERS.includes(myTier);
+  const afterLock = ["locked", "in_transit", "disputed", "completed", "resolved"].includes(ex.status);
   return {
+    // Clue only for eligible tiers, and only once nobody can back out.
+    riddle: riddleEligible && afterLock && theirItem.riddle ? theirItem.riddle : null,
+    riddleTeaser: !riddleEligible && afterLock && !!theirItem.riddle,
     ex,
     mine,
     theirs: { acceptedAt: theirs.acceptedAt, pickedUpAt: theirs.pickedUpAt, receivedAt: theirs.receivedAt },
