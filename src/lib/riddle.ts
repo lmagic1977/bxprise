@@ -59,7 +59,7 @@ async function askOnce(it: ItemLike, avoid?: string): Promise<string | null> {
   });
   if (!res.ok) throw new Error(`Riddle API ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = (await res.json()) as { content?: { type: string; text?: string }[] };
-  const text = data.content?.find((c) => c.type === "text")?.text?.trim().replace(/^["“]|["”]$/g, "");
+  const text = (data.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("").trim().replace(/^["“]|["”]$/g, "");
   return text ? text.split("\n")[0].slice(0, 120) : null;
 }
 

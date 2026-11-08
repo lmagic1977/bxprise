@@ -60,6 +60,21 @@ function packed(s: Suggestion): Pick<Suggestion, "packedWeightOz" | "packedDimsI
   return { packedDimsIn: fits ? dims : null, packedWeightOz: oz && oz <= MAX_WEIGHT_LB * 16 ? oz : null };
 }
 
+function parseSuggestion(text: string): Suggestion | null {
+  const cleaned = text.replace(/```(?:json)?/g, "");
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    const r = suggestionSchema.safeParse(JSON.parse(cleaned.slice(start, end + 1)));
+    if (!r.success) console.error("identify: schema", r.error.issues.slice(0, 3));
+    return r.success ? r.data : null;
+  } catch (e) {
+    console.error("identify: json", (e as Error).message);
+    return null;
+  }
+}
+
 export async function identifyItem(images: Img[], note: string): Promise<Suggestion> {
   let searched = true;
   let res = await call(images, note, true);
@@ -70,12 +85,11 @@ export async function identifyItem(images: Img[], note: string): Promise<Suggest
   }
   if (!res.ok) throw new Error(`AI service error (${res.status}). Fill the form by hand for now.`);
   const data = (await res.json()) as { content: { type: string; text?: string }[] };
-  const text = data.content.filter((c) => c.type === "text").map((c) => c.text ?? "").join("\n");
-  const json = text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  let parsed: Suggestion;
-  try {
-    parsed = suggestionSchema.parse(JSON.parse(json));
-  } catch {
+  // With web search the answer arrives as several text blocks (split at citations): join them as-is.
+  const blocks = data.content.filter((c) => c.type === "text").map((c) => c.text ?? "");
+  const parsed = parseSuggestion(blocks.join("")) ?? parseSuggestion(blocks.at(-1) ?? "");
+  if (!parsed) {
+    console.error("identify: unparseable reply", JSON.stringify(blocks).slice(0, 1500));
     throw new Error("AI couldn't read this item. Fill the form by hand.");
   }
   if (!CATEGORIES.some((c) => c.id === parsed.category)) parsed.category = null;
