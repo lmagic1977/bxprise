@@ -29,26 +29,39 @@ Rules:
 
 type Img = { mediaType: string; data: string };
 
-async function call(images: Img[], note: string, withSearch: boolean) {
-  const body: Record<string, unknown> = {
-    model: IDENTIFY_MODEL,
-    max_tokens: 1500,
-    system: SYSTEM,
-    messages: [{
-      role: "user",
-      content: [
-        ...images.map((i) => ({ type: "image", source: { type: "base64", media_type: i.mediaType, data: i.data } })),
-        { type: "text", text: `Owner's note: ${note || "(none)"}` },
-      ],
-    }],
-  };
-  if (withSearch) body.tools = [{ type: WEB_SEARCH_TOOL, name: "web_search", max_uses: 4 }];
-  const res = await fetch(`${process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com"}/v1/messages`, {
+type Block = { type: string; text?: string; [k: string]: unknown };
+type Reply = { content: Block[]; stop_reason?: string };
+
+async function post(body: Record<string, unknown>) {
+  return fetch(`${process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com"}/v1/messages`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01" },
     body: JSON.stringify(body),
   });
-  return res;
+}
+
+// Runs the conversation to the end: a web-search turn can come back with
+// stop_reason "pause_turn", which means "send it back and I'll continue".
+async function call(images: Img[], note: string, withSearch: boolean): Promise<{ status: number; reply?: Reply; error?: string }> {
+  const messages: { role: string; content: unknown }[] = [{
+    role: "user",
+    content: [
+      ...images.map((i) => ({ type: "image", source: { type: "base64", media_type: i.mediaType, data: i.data } })),
+      { type: "text", text: `Owner's note: ${note || "(none)"}` },
+    ],
+  }];
+  const all: Block[] = [];
+  for (let turn = 0; turn < 4; turn++) {
+    const body: Record<string, unknown> = { model: IDENTIFY_MODEL, max_tokens: 4000, system: SYSTEM, messages };
+    if (withSearch) body.tools = [{ type: WEB_SEARCH_TOOL, name: "web_search", max_uses: 4 }];
+    const res = await post(body);
+    if (!res.ok) return { status: res.status, error: (await res.text()).slice(0, 300) };
+    const reply = (await res.json()) as Reply;
+    all.push(...reply.content);
+    if (reply.stop_reason !== "pause_turn") return { status: 200, reply: { content: all, stop_reason: reply.stop_reason } };
+    messages.push({ role: "assistant", content: reply.content });
+  }
+  return { status: 200, reply: { content: all, stop_reason: "pause_turn" } };
 }
 
 function packed(s: Suggestion): Pick<Suggestion, "packedWeightOz" | "packedDimsIn"> {
@@ -80,16 +93,20 @@ export async function identifyItem(images: Img[], note: string): Promise<Suggest
   let res = await call(images, note, true);
   if (res.status === 400) {
     // Search tool not available on this account/model: identify without it, and drop prices.
+    console.error("identify: search call refused", res.error);
     searched = false;
     res = await call(images, note, false);
   }
-  if (!res.ok) throw new Error(`AI service error (${res.status}). Fill the form by hand for now.`);
-  const data = (await res.json()) as { content: { type: string; text?: string }[] };
+  if (res.status !== 200 || !res.reply) {
+    console.error("identify: api", res.status, res.error);
+    throw new Error(`AI service error (${res.status}). Fill the form by hand for now.`);
+  }
+  const data = res.reply;
   // With web search the answer arrives as several text blocks (split at citations): join them as-is.
   const blocks = data.content.filter((c) => c.type === "text").map((c) => c.text ?? "");
   const parsed = parseSuggestion(blocks.join("")) ?? parseSuggestion(blocks.at(-1) ?? "");
   if (!parsed) {
-    console.error("identify: unparseable reply", JSON.stringify(blocks).slice(0, 1500));
+    console.error("identify: unparseable reply", data.stop_reason, data.content.map((c) => c.type).join(","), JSON.stringify(blocks).slice(0, 1200));
     throw new Error("AI couldn't read this item. Fill the form by hand.");
   }
   if (!CATEGORIES.some((c) => c.id === parsed.category)) parsed.category = null;
