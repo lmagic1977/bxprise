@@ -7,7 +7,23 @@ export const CATEGORIES = [
   { id: "books", label: "Books", open: true },
   { id: "movies_music", label: "Movies & music (DVD, Blu-ray, CD)", open: true },
   { id: "video_games", label: "Video games (discs & cartridges)", open: true },
+  { id: "trading_cards", label: "Trading cards (Pokémon, Magic, Yu-Gi-Oh! and more)", open: true },
 ] as const;
+
+// Trading cards: what kind of lot, and its condition on the standard TCG scale.
+export const CARD_CATEGORY = "trading_cards";
+export const CARD_FORMATS = [
+  { id: "sealed", label: "Sealed product (booster packs, ETBs, sealed decks)" },
+  { id: "bundle", label: "Card bundle (a lot of cards packed as one)" },
+  { id: "deck", label: "Complete built deck" },
+] as const;
+export const CARD_CONDITIONS = [
+  { id: "nm", label: "NM — Near Mint" },
+  { id: "lp", label: "LP — Lightly Played" },
+  { id: "mp", label: "MP — Moderately Played" },
+] as const;
+export const cardFormatLabel = (id: string | null | undefined) => CARD_FORMATS.find((c) => c.id === id)?.label.split(" (")[0] ?? "";
+export const cardConditionLabel = (id: string | null | undefined) => CARD_CONDITIONS.find((c) => c.id === id)?.label ?? "";
 
 // Video games only match people who own the platform.
 export const PLATFORMS = [
@@ -28,6 +44,7 @@ export const BUNDLE_HINT: Record<string, string> = {
   movies_music: "Bundle several discs into one box to reach the $15 minimum. Discs must play without skipping, in their cases.",
   video_games: "Discs must play without errors; cartridges must be genuine. Include the case if you have it.",
   board_games_puzzles: "Small puzzles can be bundled 2–3 to a box.",
+  trading_cards: "Sealed packs must be factory sealed — photograph the seals and crimps up close; resealed packs get you suspended. Cards ship sleeved, in toploaders, in a bubble mailer. No graded slabs or single high-value cards yet.",
 };
 
 export type CategoryId = (typeof CATEGORIES)[number]["id"];

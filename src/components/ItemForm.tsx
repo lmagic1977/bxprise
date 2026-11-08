@@ -12,13 +12,14 @@ export type Prefill = Partial<{
   weightLb: number; weightOzPart: number; d1: number; d2: number; d3: number; repooledFrom: number;
 }>;
 
-export function ItemForm({ categories, conditions, platforms, bundleHints, limits, prefill = {}, aiEnabled = false }: {
-  categories: Opt[]; conditions: Opt[]; platforms: Opt[]; bundleHints: Record<string, string>;
+export function ItemForm({ categories, conditions, platforms, cardFormats = [], cardConditions = [], bundleHints, limits, prefill = {}, aiEnabled = false }: {
+  categories: Opt[]; conditions: Opt[]; platforms: Opt[]; cardFormats?: Opt[]; cardConditions?: Opt[]; bundleHints: Record<string, string>;
   limits: { lb: number; dims: number[] }; prefill?: Prefill; aiEnabled?: boolean;
 }) {
   const [state, action, pending] = useActionState(createItem, undefined);
   const [category, setCategory] = useState(prefill.category ?? "");
   const [platform, setPlatform] = useState(prefill.platform ?? "");
+  const [cardFormat, setCardFormat] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const [ai, setAi] = useState<Suggestion | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
@@ -103,6 +104,27 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
               {platforms.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>
             <p className="hint">Only people who own this platform will be matched with it.</p></div>
+        )}
+        {category === "trading_cards" && (
+          <div className="space-y-3 rounded-xl border border-ink/10 p-3">
+            <div><label className="field-label" htmlFor="cardFormat">What kind of card lot?</label>
+              <select className="input" id="cardFormat" name="cardFormat" required value={cardFormat} onChange={(e) => setCardFormat(e.target.value)}>
+                <option value="" disabled>Choose…</option>
+                {cardFormats.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select></div>
+            {cardFormat && cardFormat !== "sealed" && (
+              <div><label className="field-label" htmlFor="cardCondition">Card condition</label>
+                <select className="input" id="cardCondition" name="cardCondition" required defaultValue="">
+                  <option value="" disabled>Choose…</option>
+                  {cardConditions.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+                <p className="hint">Use the worst card in the lot. Note any creases or whitening in the description.</p></div>
+            )}
+            {cardFormat === "sealed" && (
+              <label className="flex gap-2 text-sm"><input type="checkbox" name="sealConfirm" className="accent-plum" /> Every pack is factory sealed, and my photos show the seals and crimps up close.</label>
+            )}
+            <label className="flex gap-2 text-sm"><input type="checkbox" name="noGraded" className="accent-plum" /> No graded slabs and no single card worth more than this lot&apos;s value range.</label>
+          </div>
         )}
         <div><label className="field-label" htmlFor="condition">Condition</label>
           <select className="input" id="condition" name="condition" required defaultValue={prefill.condition ?? ""}>

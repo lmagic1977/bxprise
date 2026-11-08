@@ -15,6 +15,7 @@ export default function Page() {
         <li>Complete, clean and fully working. Describe any wear honestly.</li>
         <li>Packed weight up to {MAX_WEIGHT_LB} lb; box up to {MAX_DIMS_IN.join(" × ")} inches.</li>
         <li>Books, discs and games: discs must play without skipping or errors; cartridges must be genuine. Games are only matched with people who own that platform. Low-value books and discs can be bundled into one box.</li>
+        <li>Trading cards: sealed product (packs, ETBs, sealed decks), card bundles, or complete decks — graded with NM / LP / MP. Ship cards sleeved, in toploaders, in a bubble mailer. Sealed packs must be factory sealed; a resealed or searched pack counts as a confirmed problem. Graded slabs and single high-value cards aren&apos;t accepted yet. Cards only swap with cards.</li>
         <li>Not accepted: pirated or burned copies, vinyl records, anything with batteries or a plug, liquids, food, medicine, fragile items, weapons, recalled or counterfeit goods.</li>
       </ul>
 

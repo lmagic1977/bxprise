@@ -73,6 +73,8 @@ export const items = pgTable(
     category: text("category").notNull(),
     brand: text("brand"),
     platform: text("platform"), // required for video games
+    cardFormat: text("card_format"), // trading cards: sealed | bundle | deck
+    cardCondition: text("card_condition"), // trading cards: nm | lp | mp (not for sealed)
     condition: text("condition").notNull(), // new | like_new | good
     description: text("description").notNull(),
     functionNote: text("function_note").notNull(),

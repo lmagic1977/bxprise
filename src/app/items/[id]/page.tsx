@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { and, desc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { categoryLabel, conditionLabel, platformLabel, TIERS } from "@/lib/config";
+import { cardConditionLabel, cardFormatLabel, categoryLabel, conditionLabel, platformLabel, TIERS } from "@/lib/config";
 import { latestValuation } from "@/lib/exchange";
 import { tierOfValue } from "@/lib/reputation";
 import { usd } from "@/lib/money";
@@ -36,7 +36,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
         <div>
           <Link href="/dashboard" className="text-sm text-ink/60">← My swaps</Link>
           <h1 className="mt-1">{it.title}</h1>
-          <p className="text-sm text-ink/60">{categoryLabel(it.category)}{it.platform ? ` · ${platformLabel(it.platform)}` : ""} · {conditionLabel(it.condition)}</p>
+          <p className="text-sm text-ink/60">{categoryLabel(it.category)}{it.platform ? ` · ${platformLabel(it.platform)}` : ""}{it.cardFormat ? ` · ${cardFormatLabel(it.cardFormat)}` : ""}{it.cardCondition ? ` · ${cardConditionLabel(it.cardCondition)}` : ""} · {conditionLabel(it.condition)}</p>
         </div>
         <ItemStatus s={it.status} />
       </div>

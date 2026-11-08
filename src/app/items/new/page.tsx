@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { BUNDLE_HINT, CATEGORIES, CONDITIONS, MAX_DIMS_IN, MAX_WEIGHT_LB, PLATFORMS } from "@/lib/config";
+import { BUNDLE_HINT, CARD_CONDITIONS, CARD_FORMATS, CATEGORIES, CONDITIONS, MAX_DIMS_IN, MAX_WEIGHT_LB, PLATFORMS } from "@/lib/config";
 import { ItemForm, type Prefill } from "@/components/ItemForm";
 import { identifyAvailable } from "@/lib/identify";
 
@@ -34,6 +34,8 @@ export default async function NewItem({ searchParams }: PageProps<"/items/new">)
         categories={CATEGORIES.map(({ id, label }) => ({ id, label }))}
         conditions={CONDITIONS.map(({ id, label }) => ({ id, label }))}
         platforms={PLATFORMS.map(({ id, label }) => ({ id, label }))}
+        cardFormats={CARD_FORMATS.map(({ id, label }) => ({ id, label }))}
+        cardConditions={CARD_CONDITIONS.map(({ id, label }) => ({ id, label }))}
         bundleHints={BUNDLE_HINT}
         limits={{ lb: MAX_WEIGHT_LB, dims: [...MAX_DIMS_IN] }}
         prefill={prefill}

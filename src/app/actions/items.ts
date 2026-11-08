@@ -6,7 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
-import { CATEGORIES, CONDITIONS, MAX_PHOTOS, MIN_PHOTOS, NEEDS_PLATFORM, PLATFORMS, TIERS } from "@/lib/config";
+import { CARD_CATEGORY, CARD_CONDITIONS, CARD_FORMATS, CATEGORIES, CONDITIONS, MAX_PHOTOS, MIN_PHOTOS, NEEDS_PLATFORM, PLATFORMS, TIERS } from "@/lib/config";
 import { checkPackLimits, postageCents, sortDims } from "@/lib/postage";
 import { saveImage } from "@/lib/storage";
 import { chargePostage, latestValuation, refundPostage } from "@/lib/exchange";
@@ -20,6 +20,8 @@ const itemSchema = z.object({
   category: z.enum(CATEGORIES.map((c) => c.id) as [string, ...string[]], { message: "Pick a category." }),
   brand: z.string().trim().max(80).optional(),
   platform: z.string().optional(),
+  cardFormat: z.string().optional(),
+  cardCondition: z.string().optional(),
   condition: z.enum(CONDITIONS.map((c) => c.id) as [string, ...string[]], { message: "Pick a condition." }),
   description: z.string().trim().min(10, "Describe the item (10+ characters).").max(1000),
   functionNote: z.string().trim().min(3, "Tell us how you checked it works / is complete.").max(500),
@@ -43,6 +45,18 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
 
   const platform = d.category === NEEDS_PLATFORM ? d.platform : null;
   if (d.category === NEEDS_PLATFORM && !PLATFORMS.some((p) => p.id === platform)) return { error: "Pick the game's platform." };
+  let cardFormat: string | null = null;
+  let cardCondition: string | null = null;
+  if (d.category === CARD_CATEGORY) {
+    if (!CARD_FORMATS.some((f) => f.id === d.cardFormat)) return { error: "Choose what kind of card lot this is." };
+    cardFormat = d.cardFormat!;
+    if (cardFormat !== "sealed") {
+      if (!CARD_CONDITIONS.some((c) => c.id === d.cardCondition)) return { error: "Choose the cards' condition (NM, LP or MP)." };
+      cardCondition = d.cardCondition!;
+    }
+    if (cardFormat === "sealed" && fd.get("sealConfirm") !== "on") return { error: "Confirm the packs are factory sealed and the seals are in your photos." };
+    if (fd.get("noGraded") !== "on") return { error: "Graded cards and single high-value cards aren't accepted yet." };
+  }
   const weightOz = d.weightLb * 16 + d.weightOzPart;
   const dims = sortDims(d.d1, d.d2, d.d3);
   const packErr = checkPackLimits({ weightOz, dims });
@@ -76,6 +90,8 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
         category: d.category,
         brand: d.brand || null,
         platform,
+        cardFormat,
+        cardCondition,
         condition: d.condition,
         description: d.description,
         functionNote: d.functionNote,

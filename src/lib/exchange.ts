@@ -11,6 +11,9 @@ import {
   categoryLabel,
   platformLabel,
   NEEDS_PLATFORM,
+  CARD_CATEGORY,
+  cardFormatLabel,
+  cardConditionLabel,
 } from "./config";
 import { postageCents, type Pack } from "./postage";
 import { addReputation, getReputation, getReputations, tierOfValue, tierRank } from "./reputation";
@@ -164,6 +167,8 @@ export async function runMatching(adminId: number) {
       if (rank > tierRank(reps.get(a.ownerId)!.tier) || rank > tierRank(reps.get(b.ownerId)!.tier)) return false;
       if (!wants(a.owner, b) || !wants(b.owner, a)) return false;
       if (excluded(a.owner, b) || excluded(b.owner, a)) return false;
+      // Trading cards only swap with trading cards.
+      if ((a.category === CARD_CATEGORY) !== (b.category === CARD_CATEGORY)) return false;
       return true;
     });
     // Similar reputation pairs together; then the closest value.
@@ -423,7 +428,11 @@ export async function resolveDispute(
 // What one side may see about the other side's item BEFORE the swap is done.
 export function blindView(it: typeof items.$inferSelect, v: typeof valuations.$inferSelect) {
   return {
-    category: it.platform ? `${categoryLabel(it.category)} · ${platformLabel(it.platform)}` : categoryLabel(it.category),
+    category: it.platform
+      ? `${categoryLabel(it.category)} · ${platformLabel(it.platform)}`
+      : it.cardFormat
+        ? `Trading cards · ${cardFormatLabel(it.cardFormat)}${it.cardCondition ? ` · ${cardConditionLabel(it.cardCondition).split(" —")[0]}` : ""}`
+        : categoryLabel(it.category),
     valueRange: [v.lowCents, v.highCents] as const,
     condition: conditionLabel(it.condition),
   };
