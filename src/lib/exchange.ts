@@ -354,6 +354,7 @@ export async function submitReview(
     .insert(reviews)
     .values({ exchangeId, reviewerId: userId, revieweeId: other.userId, ...r })
     .onConflictDoNothing();
+  await audit(userId, "review.submit", "exchange", exchangeId, { matches: r.matchesDescription, packaging: r.packaging });
   const all = await db.select().from(reviews).where(eq(reviews.exchangeId, exchangeId));
   if (all.length === 2) await publishReviews(exchangeId);
 }

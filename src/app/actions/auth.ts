@@ -54,6 +54,7 @@ export async function login(_: FormState, fd: FormData): Promise<FormState> {
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash)))
     return { error: "Email or password is incorrect." };
   await createSession(user.id);
+  await audit(user.id, "user.login", "user", user.id);
   redirect(user.role === "admin" ? "/admin" : "/dashboard");
 }
 
@@ -93,6 +94,7 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
       ...(onboarding ? { ageConfirmed: true, rulesAcceptedAt: new Date() } : {}),
     })
     .where(eq(schema.users.id, user.id));
+  await audit(user.id, "user.profile", "user", user.id, { onboarding, wanted, platforms });
   revalidatePath("/", "layout");
   if (onboarding) redirect("/dashboard");
   return { ok: "Saved." };

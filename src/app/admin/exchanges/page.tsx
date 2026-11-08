@@ -16,7 +16,7 @@ export default async function Swaps() {
     <div className="space-y-3">
       <h1>Swaps</h1>
       {exs.map((e) => (
-        <section key={e.id} className="card space-y-2 text-sm">
+        <section key={e.id} id={`ex-${e.id}`} className="card space-y-2 text-sm">
           <div className="flex justify-between"><b>Swap #{e.id} · {e.tier}</b><ExchangeStatus s={e.status} /></div>
           {ps.filter((x) => x.p.exchangeId === e.id).map(({ p, it, u }) => (
             <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-cream p-2">
