@@ -27,7 +27,7 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
 
   async function runAi() {
     const form = formRef.current!;
-    const photos = (form.elements.namedItem("photos") as HTMLInputElement).files;
+    const photos = form.querySelector<HTMLInputElement>('input[name="photos"]')?.files;
     if (!photos || photos.length === 0) { setAiError("Add photos first."); return; }
     const fd = new FormData();
     Array.from(photos).slice(0, 3).forEach((f) => fd.append("photos", f));
