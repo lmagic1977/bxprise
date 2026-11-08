@@ -1,3 +1,5 @@
+import Image from "next/image";
+import { DetailedRules } from "./DetailedRules";
 import { CATEGORIES, MAX_DIMS_IN, MAX_WEIGHT_LB, TIERS, ACCEPT_WINDOW_HOURS, SHIP_WINDOW_DAYS, REVIEW_AUTO_PUBLISH_DAYS, MAX_WAIT_DAYS_BEFORE_REFUND } from "@/lib/config";
 import { usd } from "@/lib/money";
 
@@ -5,10 +7,26 @@ export const metadata = { title: "How it works · BXprise" };
 
 export default function Page() {
   return (
-    <article className="mx-auto max-w-2xl space-y-6 text-[15px] leading-relaxed">
+    <article className="mx-auto max-w-3xl space-y-6 text-[15px] leading-relaxed">
       <h1>How BXprise works</h1>
       <p>BXprise is a blind swap for fun. You trade something you no longer use for a surprise from someone with similar interests. It is about the unboxing, not about getting an exact equal.</p>
 
+      <figure className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm">
+        <Image
+          src="/illustrations/how-it-works-comic.webp"
+          alt="Six-step BXprise comic: pick a clean, complete item; get it reviewed and confirm its value range; pay postage and wait for a weekly match; both accept within 48 hours; photograph the packing and ship within 4 days; unbox and review the description and packing."
+          width={1024}
+          height={1536}
+          sizes="(max-width: 800px) calc(100vw - 32px), 768px"
+          preload
+          className="h-auto w-full"
+        />
+        <figcaption className="border-t border-ink/10 px-5 py-3 text-xs text-ink/65">
+          The quick picture guide. Read the full rules below for item limits, postage, refunds and problem reporting.
+        </figcaption>
+      </figure>
+
+      <DetailedRules>
       <h2>1. What you can send</h2>
       <ul className="list-disc pl-5">
         <li>Open categories: {CATEGORIES.map((c) => c.label).join(", ")}.</li>
@@ -48,6 +66,7 @@ export default function Page() {
 
       <h2 id="privacy">7. Privacy</h2>
       <p>Your item is visible only to our team until the swap is complete. Your address is used only for shipping labels; your partner will see it on the package. Please hide labels and personal details if you share unboxing photos.</p>
+      </DetailedRules>
     </article>
   );
 }
