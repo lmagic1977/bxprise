@@ -20,7 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
         <footer className="border-t border-ink/10 py-6 text-center text-xs text-ink/50">
-          BXprise pilot · US only · 18+ · <a href="/how-it-works" className="underline">Rules</a>
+          BXprise pilot · US only · 18+ · <a href="/how-it-works" className="underline">Rules</a> · <a href="/privacy" className="underline">Privacy</a> · <a href="/data-deletion" className="underline">Delete your data</a>
         </footer>
       </body>
     </html>

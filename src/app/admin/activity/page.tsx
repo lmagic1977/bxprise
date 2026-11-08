@@ -7,6 +7,7 @@ const LABEL: Record<string, string> = {
   "user.signup": "signed up",
   "user.login": "logged in",
   "user.profile": "updated profile",
+  "user.deletion_request": "requested account deletion",
   "item.create": "uploaded an item",
   "item.withdraw": "withdrew an item",
   "item.pause": "paused an item",

@@ -7,6 +7,7 @@ export default async function AdminHome() {
   const items = await db.select({ k: schema.items.status, n: sql<number>`count(*)::int` }).from(schema.items).groupBy(schema.items.status);
   const exs = await db.select({ k: schema.exchanges.status, n: sql<number>`count(*)::int` }).from(schema.exchanges).groupBy(schema.exchanges.status);
   const [users] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.users);
+  const [del] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.users).where(sql`deletion_requested_at is not null`);
   const [open] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.disputes).where(sql`status = 'open'`);
   const Box = ({ title, rows }: { title: string; rows: { k: string; n: number }[] }) => (
     <div className="card">
@@ -17,7 +18,7 @@ export default async function AdminHome() {
   return (
     <div className="space-y-4">
       <h1>Admin</h1>
-      <p className="text-sm text-ink/70">{users.n} users · {open.n} open reports</p>
+      <p className="text-sm text-ink/70">{users.n} users · {open.n} open reports · {del.n} deletion requests</p>
       <div className="grid gap-4 sm:grid-cols-2">
         <Box title="Items by status" rows={items} />
         <Box title="Swaps by status" rows={exs} />

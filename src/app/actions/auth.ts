@@ -51,7 +51,9 @@ export async function login(_: FormState, fd: FormData): Promise<FormState> {
   const parsed = credentials.safeParse({ email: fd.get("email"), password: fd.get("password") });
   if (!parsed.success) return { error: "Email or password is incorrect." };
   const [user] = await db.select().from(schema.users).where(eq(schema.users.email, parsed.data.email));
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash)))
+  if (user && !user.passwordHash)
+    return { error: "This account uses Google or Facebook sign-in. Use the button below." };
+  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash!)))
     return { error: "Email or password is incorrect." };
   await createSession(user.id);
   await audit(user.id, "user.login", "user", user.id);
@@ -98,4 +100,11 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
   revalidatePath("/", "layout");
   if (onboarding) redirect("/dashboard");
   return { ok: "Saved." };
+}
+
+export async function requestDeletion(): Promise<FormState> {
+  const user = await requireUser();
+  await db.update(schema.users).set({ deletionRequestedAt: new Date() }).where(eq(schema.users.id, user.id));
+  await audit(user.id, "user.deletion_request", "user", user.id);
+  return { ok: "Request received. We'll delete your account within 30 days and email you when it's done." };
 }

@@ -14,7 +14,7 @@ import {
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"), // null for accounts created with Google/Facebook
   displayName: text("display_name").notNull(),
   role: text("role").notNull().default("user"), // user | admin
   ageConfirmed: boolean("age_confirmed").notNull().default(false),
@@ -32,8 +32,22 @@ export const users = pgTable("users", {
   exclusions: text("exclusions"), // comma-separated keywords
   platforms: jsonb("platforms").$type<string[]>().notNull().default([]), // consoles the user owns
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+  deletionRequestedAt: timestamp("deletion_requested_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Google / Facebook identities linked to a user.
+export const oauthAccounts = pgTable(
+  "oauth_accounts",
+  {
+    id: serial("id").primaryKey(),
+    provider: text("provider").notNull(), // google | facebook
+    providerUserId: text("provider_user_id").notNull(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("oauth_provider_user").on(t.provider, t.providerUserId)],
+);
 
 export const sessions = pgTable("sessions", {
   token: text("token").primaryKey(),
