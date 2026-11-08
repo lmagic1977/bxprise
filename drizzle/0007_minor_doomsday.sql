@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "interest_other" jsonb DEFAULT '{}'::jsonb NOT NULL;

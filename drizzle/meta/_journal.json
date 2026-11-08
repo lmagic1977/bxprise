@@ -50,6 +50,13 @@
       "when": 1794156713250,
       "tag": "0006_common_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794157058292,
+      "tag": "0007_minor_doomsday",
+      "breakpoints": true
     }
   ]
 }

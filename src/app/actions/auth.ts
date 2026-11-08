@@ -88,6 +88,11 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
   const wanted = fd.getAll("wanted").map(String).filter((c) => CATEGORIES.some((x) => x.id === c));
   const platforms = fd.getAll("platforms").map(String).filter((c) => PLATFORMS.some((x) => x.id === c));
   const interestTags = [...new Set(fd.getAll("interestTags").map(String).filter((t) => ALL_INTEREST_TAGS.includes(t)))];
+  const interestOther: Record<string, string> = {};
+  for (const c of CATEGORIES) {
+    const v = String(fd.get(`other_${c.id}`) ?? "").trim().slice(0, 100);
+    if (v) interestOther[c.id] = v;
+  }
   await db
     .update(schema.users)
     .set({
@@ -95,6 +100,7 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
       wantedCategories: wanted,
       platforms,
       interestTags,
+      interestOther,
       ...(onboarding ? { ageConfirmed: true, rulesAcceptedAt: new Date() } : {}),
     })
     .where(eq(schema.users.id, user.id));

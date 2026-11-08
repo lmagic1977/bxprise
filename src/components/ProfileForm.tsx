@@ -7,7 +7,7 @@ type Cat = { id: string; label: string };
 type U = {
   displayName: string; addressName: string | null; addressLine1: string | null; addressLine2: string | null;
   city: string | null; state: string | null; zip: string | null; bio: string | null; interests: string | null;
-  exclusions: string | null; wantedCategories: string[]; platforms: string[]; interestTags: string[];
+  exclusions: string | null; wantedCategories: string[]; platforms: string[]; interestTags: string[]; interestOther: Record<string, string>;
 };
 
 export function ProfileForm({ user, categories, platforms, interestTags, onboarding }: {
@@ -16,6 +16,7 @@ export function ProfileForm({ user, categories, platforms, interestTags, onboard
   const [state, action, pending] = useActionState(saveProfile, undefined);
   const [wanted, setWanted] = useState<string[]>(user.wantedCategories);
   const [tags, setTags] = useState<string[]>(user.interestTags);
+  const [otherOpen, setOtherOpen] = useState<string[]>(Object.keys(user.interestOther ?? {}));
   const shown = categories.filter((c) => wanted.length === 0 || wanted.includes(c.id));
   const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const v = (k: keyof U) => (user[k] as string | null) ?? "";
@@ -61,12 +62,20 @@ export function ProfileForm({ user, categories, platforms, interestTags, onboard
                       {t}
                     </button>
                   ))}
+                  <button type="button" aria-pressed={otherOpen.includes(c.id)} onClick={() => setOtherOpen((x) => toggle(x, c.id))}
+                    className={`rounded-full border border-dashed px-3 py-1.5 text-sm transition ${otherOpen.includes(c.id) ? "border-plum bg-plum text-white" : "border-ink/30 bg-white hover:border-plum/50"}`}>
+                    Other…
+                  </button>
                 </div>
+                {otherOpen.includes(c.id) && (
+                  <input className="input mt-2" name={`other_${c.id}`} defaultValue={user.interestOther?.[c.id] ?? ""} maxLength={100}
+                    placeholder={`Other ${c.label.split(" (")[0].toLowerCase()} you like`} autoFocus={!user.interestOther?.[c.id]} />
+                )}
               </div>
             ))}
           </div>
           {tags.map((t) => <input key={t} type="hidden" name="interestTags" value={t} />)}
-          <input className="input mt-3" id="interests" name="interests" defaultValue={v("interests")} maxLength={150} placeholder="Anything else? (optional)" />
+
         </fieldset>
         <div>
           <label className="field-label" htmlFor="exclusions">Never send me…</label>

@@ -29,6 +29,7 @@ export const users = pgTable("users", {
   bio: text("bio"),
   interests: text("interests"), // free-text "other interests"
   interestTags: jsonb("interest_tags").$type<string[]>().notNull().default([]),
+  interestOther: jsonb("interest_other").$type<Record<string, string>>().notNull().default({}), // per-category "Other" text
   wantedCategories: jsonb("wanted_categories").$type<string[]>().notNull().default([]),
   exclusions: text("exclusions"), // comma-separated keywords
   platforms: jsonb("platforms").$type<string[]>().notNull().default([]), // consoles the user owns
