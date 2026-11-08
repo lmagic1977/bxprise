@@ -475,7 +475,7 @@ export async function exchangeForUser(exchangeId: number, userId: number) {
     reveal: revealed
       ? {
           item: theirItem,
-          sender: { displayName: them.displayName, bio: them.bio, interests: them.interests },
+          sender: { displayName: them.displayName, bio: them.bio, interests: [...them.interestTags, them.interests].filter(Boolean).join(", ") || null },
           theirReview,
         }
       : null,

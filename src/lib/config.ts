@@ -25,6 +25,18 @@ export const CARD_CONDITIONS = [
 export const cardFormatLabel = (id: string | null | undefined) => CARD_FORMATS.find((c) => c.id === id)?.label.split(" (")[0] ?? "";
 export const cardConditionLabel = (id: string | null | undefined) => CARD_CONDITIONS.find((c) => c.id === id)?.label ?? "";
 
+// Interest tags people pick in their profile, grouped by category.
+export const INTEREST_TAGS: Record<string, string[]> = {
+  board_games_puzzles: ["Strategy games", "Co-op games", "Party games", "Family games", "Card games", "Jigsaw puzzles"],
+  toys_figures: ["Pop Mart", "Sonny Angel", "Smiski", "Anime figures", "Plush", "Vinyl art toys"],
+  craft_yarn: ["Knitting", "Crochet", "Embroidery", "Sewing", "Jewelry making", "Paper craft"],
+  books: ["Fiction", "Mystery & thriller", "Sci-fi & fantasy", "Romance", "Non-fiction", "Manga & comics", "Kids' books"],
+  movies_music: ["Movies", "TV series", "Anime", "K-pop", "Rock & classic", "Soundtracks"],
+  video_games: ["RPG", "Action & adventure", "Sports & racing", "Indie", "Family & party", "Retro games"],
+  trading_cards: ["Pokémon", "Magic: The Gathering", "Yu-Gi-Oh!", "One Piece", "Lorcana", "Sports cards"],
+};
+export const ALL_INTEREST_TAGS = Object.values(INTEREST_TAGS).flat();
+
 // Video games only match people who own the platform.
 export const PLATFORMS = [
   { id: "ps5", label: "PlayStation 5" },

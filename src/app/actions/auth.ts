@@ -13,7 +13,7 @@ import {
   requireUser,
   verifyPassword,
 } from "@/lib/auth";
-import { CATEGORIES, PLATFORMS } from "@/lib/config";
+import { ALL_INTEREST_TAGS, CATEGORIES, PLATFORMS } from "@/lib/config";
 import { audit } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: string } | undefined;
@@ -87,12 +87,14 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const wanted = fd.getAll("wanted").map(String).filter((c) => CATEGORIES.some((x) => x.id === c));
   const platforms = fd.getAll("platforms").map(String).filter((c) => PLATFORMS.some((x) => x.id === c));
+  const interestTags = [...new Set(fd.getAll("interestTags").map(String).filter((t) => ALL_INTEREST_TAGS.includes(t)))];
   await db
     .update(schema.users)
     .set({
       ...parsed.data,
       wantedCategories: wanted,
       platforms,
+      interestTags,
       ...(onboarding ? { ageConfirmed: true, rulesAcceptedAt: new Date() } : {}),
     })
     .where(eq(schema.users.id, user.id));

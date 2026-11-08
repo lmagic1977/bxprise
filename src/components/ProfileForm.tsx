@@ -1,5 +1,5 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveProfile } from "@/app/actions/auth";
 import { keepOnSubmit } from "./keepForm";
 
@@ -7,11 +7,17 @@ type Cat = { id: string; label: string };
 type U = {
   displayName: string; addressName: string | null; addressLine1: string | null; addressLine2: string | null;
   city: string | null; state: string | null; zip: string | null; bio: string | null; interests: string | null;
-  exclusions: string | null; wantedCategories: string[]; platforms: string[];
+  exclusions: string | null; wantedCategories: string[]; platforms: string[]; interestTags: string[];
 };
 
-export function ProfileForm({ user, categories, platforms, onboarding }: { user: U; categories: Cat[]; platforms: Cat[]; onboarding?: boolean }) {
+export function ProfileForm({ user, categories, platforms, interestTags, onboarding }: {
+  user: U; categories: Cat[]; platforms: Cat[]; interestTags: Record<string, string[]>; onboarding?: boolean;
+}) {
   const [state, action, pending] = useActionState(saveProfile, undefined);
+  const [wanted, setWanted] = useState<string[]>(user.wantedCategories);
+  const [tags, setTags] = useState<string[]>(user.interestTags);
+  const shown = categories.filter((c) => wanted.length === 0 || wanted.includes(c.id));
+  const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const v = (k: keyof U) => (user[k] as string | null) ?? "";
   return (
     <form onSubmit={keepOnSubmit(action)} className="space-y-6">
@@ -23,7 +29,7 @@ export function ProfileForm({ user, categories, platforms, onboarding }: { user:
           <div className="flex flex-wrap gap-2">
             {categories.map((c) => (
               <label key={c.id} className="flex items-center gap-2 rounded-full border border-ink/15 bg-white px-3 py-1.5 text-sm has-[:checked]:border-plum has-[:checked]:bg-plum-soft">
-                <input type="checkbox" name="wanted" value={c.id} defaultChecked={user.wantedCategories.includes(c.id)} className="accent-plum" />
+                <input type="checkbox" name="wanted" value={c.id} checked={wanted.includes(c.id)} onChange={() => setWanted((w) => toggle(w, c.id))} className="accent-plum" />
                 {c.label}
               </label>
             ))}
@@ -42,10 +48,26 @@ export function ProfileForm({ user, categories, platforms, onboarding }: { user:
           </div>
           <p className="hint">You'll only receive video games for platforms you tick here. Tick none to never receive games.</p>
         </fieldset>
-        <div>
-          <label className="field-label" htmlFor="interests">Your interests</label>
-          <input className="input" id="interests" name="interests" defaultValue={v("interests")} placeholder="e.g. co-op games, amigurumi" />
-        </div>
+        <fieldset>
+          <legend className="field-label">Your interests <span className="font-normal text-ink/50">— tap all that fit</span></legend>
+          <div className="space-y-3">
+            {shown.map((c) => (
+              <div key={c.id}>
+                <p className="mb-1 text-xs font-medium text-ink/60">{c.label}</p>
+                <div className="flex flex-wrap gap-2">
+                  {(interestTags[c.id] ?? []).map((t) => (
+                    <button key={t} type="button" aria-pressed={tags.includes(t)} onClick={() => setTags((x) => toggle(x, t))}
+                      className={`rounded-full border px-3 py-1.5 text-sm transition ${tags.includes(t) ? "border-plum bg-plum text-white" : "border-ink/15 bg-white hover:border-plum/50"}`}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          {tags.map((t) => <input key={t} type="hidden" name="interestTags" value={t} />)}
+          <input className="input mt-3" id="interests" name="interests" defaultValue={v("interests")} maxLength={150} placeholder="Anything else? (optional)" />
+        </fieldset>
         <div>
           <label className="field-label" htmlFor="exclusions">Never send me…</label>
           <input className="input" id="exclusions" name="exclusions" defaultValue={v("exclusions")} placeholder="comma-separated, e.g. wool, horror, 1000-piece" />

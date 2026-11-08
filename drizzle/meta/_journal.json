@@ -43,6 +43,13 @@
       "when": 1794155992003,
       "tag": "0005_moaning_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794156713250,
+      "tag": "0006_common_legion",
+      "breakpoints": true
     }
   ]
 }
