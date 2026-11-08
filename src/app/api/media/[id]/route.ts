@@ -10,9 +10,10 @@ import { readImage } from "@/lib/storage";
 export async function GET(_req: Request, ctx: RouteContext<"/api/media/[id]">) {
   const { id } = await ctx.params;
   const user = await getUser();
-  if (!user) return new Response("Not found", { status: 404 });
+  const deny = () => new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
+  if (!user) return deny();
   const [m] = await db.select().from(schema.media).where(eq(schema.media.id, id));
-  if (!m) return new Response("Not found", { status: 404 });
+  if (!m) return deny();
 
   let allowed = user.role === "admin" || m.ownerId === user.id;
   if (!allowed) {
@@ -35,12 +36,14 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/media/[id]">) {
       }
     }
   }
-  if (!allowed) return new Response("Not found", { status: 404 });
+  if (!allowed) return deny();
 
   const body = await readImage(m.pathname);
-  if (!body) return new Response("Not found", { status: 404 });
+  if (!body) return deny();
   return new Response(body as BodyInit, {
-    headers: { "content-type": m.contentType, "cache-control": "private, max-age=3600" },
+    // no-store: on a shared computer the next person to log in must not get
+    // this image from the browser cache without the server checking them.
+    headers: { "content-type": m.contentType, "cache-control": "private, no-store", vary: "Cookie" },
   });
 }
 

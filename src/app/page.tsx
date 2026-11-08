@@ -6,7 +6,7 @@ import { usd } from "@/lib/money";
 
 const steps = [
   ["Pack up something you love but don't use", "Complete, working, and in one of our open categories. Snap a few photos."],
-  ["Get a value and join the pool", "We review it and give a value range. You confirm it, pay your own postage, and wait for the weekly match."],
+  ["Pay your postage, get a value", "You pay postage for your box when you submit (refunded if we can't accept it or you withdraw). We review it, give a value range, and once you confirm it you join the weekly match."],
   ["Swap blind", "You see only the category, value range and condition of what's coming. Both say yes, both ship."],
   ["Unbox the surprise", "Open it, read the sender's note, rate the swap. Didn't click? Put it straight back in the pool."],
 ];

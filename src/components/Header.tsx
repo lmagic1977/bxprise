@@ -11,7 +11,7 @@ export async function Header() {
         <Link href={user ? "/dashboard" : "/"} aria-label="BXprise home">
           <Logo size={24} />
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-1 text-sm [&_a]:rounded-lg [&_a]:px-2 [&_a]:py-2.5 [&_button]:px-2 [&_button]:py-2.5">
           <Link href="/how-it-works" className="hidden sm:inline hover:text-plum">How it works</Link>
           {user ? (
             <>

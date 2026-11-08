@@ -9,7 +9,13 @@ type ItemLike = {
   description: string;
 };
 
-const STOP = new Set(["the", "and", "with", "for", "set", "box", "game", "edition", "series", "pack", "book", "books"]);
+// Generic words that appear in titles but don't give the item away.
+const STOP = new Set([
+  "the", "and", "with", "for", "from", "set", "box", "game", "games", "edition", "series", "pack", "book", "books",
+  "mode", "rage", "base", "deluxe", "party", "classic", "collection", "complete", "special", "limited", "volume",
+  "part", "new", "used", "board", "card", "cards", "puzzle", "piece", "pieces", "toys", "figure", "studio", "studios",
+  "your", "this", "that", "into", "over", "life", "love", "time", "world", "play",
+]);
 
 // Words that would give the item away if they appeared in the clue.
 function giveaways(it: ItemLike) {
@@ -36,13 +42,13 @@ Example: a padlock → Something that keeps your things safe.`;
 
 export const riddleAvailable = () => !!process.env.ANTHROPIC_API_KEY;
 
-async function askOnce(it: ItemLike, avoid?: string): Promise<string | null> {
+async function askOnce(it: ItemLike, avoid: string[]): Promise<string | null> {
   const details = [
     `Category: ${categoryLabel(it.category)}${it.platform ? ` (${platformLabel(it.platform)})` : ""}`,
     `Item: ${it.title}${it.brand ? ` by ${it.brand}` : ""}`,
     `Description: ${it.description.slice(0, 600)}`,
-    avoid ? `Your last clue used the word "${avoid}", which gives it away. Avoid it.` : "",
-  ].filter(Boolean).join("\n");
+    `Forbidden words (do not use them or any form of them): ${[...new Set([...giveaways(it), ...avoid])].join(", ") || "none"}`,
+  ].join("\n");
   const res = await fetch(`${process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com"}/v1/messages`, {
     method: "POST",
     headers: {
@@ -66,11 +72,13 @@ async function askOnce(it: ItemLike, avoid?: string): Promise<string | null> {
 // Returns a clue that passed the giveaway check, or null (admin writes one by hand).
 export async function generateRiddle(it: ItemLike): Promise<string | null> {
   if (!riddleAvailable()) return null;
-  let r = await askOnce(it);
-  let leak = r && riddleLeaks(r, it);
-  if (r && leak) {
-    r = await askOnce(it, leak);
-    leak = r && riddleLeaks(r, it);
+  const avoid: string[] = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const r = await askOnce(it, avoid);
+    if (!r) continue;
+    const leak = riddleLeaks(r, it);
+    if (!leak) return r;
+    avoid.push(leak);
   }
-  return r && !leak ? r : null;
+  return null;
 }

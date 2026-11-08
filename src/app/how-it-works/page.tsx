@@ -33,14 +33,19 @@ export default function Page() {
       <h2>5. Unboxing, reviews and reputation</h2>
       <p>After you receive your box you rate the swap: did it match the description, and was it packed well? Reviews are double-blind — both are revealed when both are in, or after {REVIEW_AUTO_PUBLISH_DAYS} days. Your reputation goes up with on-time, as-described swaps and unlocks higher tiers. How much you liked the surprise is shared with us to improve matching, but never counts against the sender.</p>
 
-      <h2>6. If something goes wrong</h2>
+      <h2 id="problems">6. If something goes wrong</h2>
+      <p>Report a problem from the swap page within <b>7 days</b> of delivery (or of the expected delivery date if nothing arrived). Keep the box and packing. We reply within <b>3 business days</b>. During the pilot BXprise does not pay compensation itself; the outcomes below are what we can do.</p>
       <ul className="list-disc pl-5">
         <li><b>It matched the description but isn't your thing:</b> no refund — that's the game. You can put it straight back in the pool.</li>
         <li><b>It didn't match the description:</b> report it with photos. If we confirm it, the sender loses reputation and can be suspended.</li>
         <li><b>Your box never arrived:</b> choose to have your partner return your item (the sender of the lost box pays return postage), let it go, or claim on shipping insurance (coming soon).</li>
+        <li><b>Your partner won&apos;t send the return:</b> we treat it as a confirmed problem with that member: they lose reputation and are suspended after a second confirmed problem.</li>
+        <li><b>Both boxes were lost:</b> the swap is closed with no further action; each side keeps the postage they paid. Shipping insurance, once available, is the only way to recover a lost box.</li>
+        <li><b>Arrived damaged:</b> report it with photos of the item and the box. If the packing was clearly poor, it counts against the sender&apos;s reputation; otherwise it is handled like a lost box.</li>
+        <li><b>You disagree with our decision:</b> reply on the report within 7 days with anything new and a different team member will take a second look.</li>
       </ul>
 
-      <h2>7. Privacy</h2>
+      <h2 id="privacy">7. Privacy</h2>
       <p>Your item is visible only to our team until the swap is complete. Your address is used only for shipping labels; your partner will see it on the package. Please hide labels and personal details if you share unboxing photos.</p>
     </article>
   );

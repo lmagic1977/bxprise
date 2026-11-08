@@ -44,7 +44,7 @@ export function ProfileForm({ user, categories, platforms, onboarding }: { user:
         </fieldset>
         <div>
           <label className="field-label" htmlFor="interests">Your interests</label>
-          <input className="input" id="interests" name="interests" defaultValue={v("interests")} placeholder="e.g. cozy co-op games, amigurumi, Sonny Angels" />
+          <input className="input" id="interests" name="interests" defaultValue={v("interests")} placeholder="e.g. co-op games, amigurumi" />
         </div>
         <div>
           <label className="field-label" htmlFor="exclusions">Never send me…</label>

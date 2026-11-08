@@ -57,7 +57,7 @@ export default async function ExchangePage({ params }: PageProps<"/exchanges/[id
       {s === "proposed" && (
         <section className="card space-y-3">
           <h2>You've got a match!</h2>
-          <p className="text-sm text-ink/70">Accept by <b>{ex.acceptDeadline?.toLocaleString("en-US")}</b>. Once you both accept, labels are created and you'll have {SHIP_WINDOW_DAYS} days to drop off your box. If either side declines or time runs out, both items go back in the pool.</p>
+          <p className="text-sm text-ink/70">Accept by <b>{ex.acceptDeadline?.toLocaleString("en-US")}</b>. Once you both accept, labels are created and you'll have {SHIP_WINDOW_DAYS} days to drop off your box. If either side declines or time runs out, both items go back in the pool. By accepting you agree to <a href="/how-it-works#problems" target="_blank" className="text-plum underline">what happens if something goes wrong</a>.</p>
           <ul className="space-y-1 text-sm">
             <Step done={!!mine.acceptedAt}>You {mine.acceptedAt ? "accepted" : "haven't answered yet"}</Step>
             <Step done={!!theirs.acceptedAt}>Your partner {theirs.acceptedAt ? "accepted" : "hasn't answered yet"}</Step>
@@ -98,6 +98,7 @@ export default async function ExchangePage({ params }: PageProps<"/exchanges/[id
           </div>
           <ul className="space-y-1 text-sm">
             <Step done={!!mine.packingPhotoId}>Photo of what you packed (before sealing)</Step>
+            {mine.packingPhotoId && <li className="pl-6"><Photos ids={[mine.packingPhotoId]} size="h-20 w-20" /></li>}
             <Step done={!!mine.pickedUpAt}>Your box scanned by the carrier</Step>
             <Step done={!!theirs.pickedUpAt}>Partner's box scanned by the carrier</Step>
             <Step done={!!mine.receivedAt}>You received your box</Step>

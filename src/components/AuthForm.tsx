@@ -24,9 +24,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <label className="field-label" htmlFor="password">Password</label>
         <input className="input" id="password" name="password" type="password" required minLength={8}
           autoComplete={mode === "login" ? "current-password" : "new-password"} />
+        {mode === "signup" && <p className="hint">At least 8 characters.</p>}
       </div>
       {state?.error && <p className="text-sm text-red-700" role="alert">{state.error}</p>}
-      <button className="btn-primary w-full" disabled={pending}>{mode === "login" ? "Log in" : "Create account"}</button>
+      {mode === "signup" && (
+        <p className="text-xs text-ink/60">BXprise is for adults 18+ in the US. By creating an account you agree to the <a href="/how-it-works" target="_blank" className="underline">swap rules</a> and how we handle your data (<a href="/how-it-works#privacy" target="_blank" className="underline">privacy</a>). You&apos;ll confirm your age on the next step.</p>
+      )}
+      <button className="btn-primary w-full" disabled={pending}>{pending ? (mode === "login" ? "Logging in…" : "Creating account…") : mode === "login" ? "Log in" : "Create account"}</button>
       <p className="text-center text-sm text-ink/60">
         {mode === "login" ? <>New here? <Link className="text-plum underline" href="/signup">Create an account</Link></>
           : <>Have an account? <Link className="text-plum underline" href="/login">Log in</Link></>}

@@ -23,6 +23,7 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
   const [ai, setAi] = useState<Suggestion | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [errSeen, setErrSeen] = useState<unknown>(null); // the error object the person has since edited past
 
   async function runAi() {
     const form = formRef.current!;
@@ -49,7 +50,7 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
     if (s.packedDimsIn) { set("d1", s.packedDimsIn[0]); set("d2", s.packedDimsIn[1]); set("d3", s.packedDimsIn[2]); }
   }
   return (
-    <form ref={formRef} onSubmit={keepOnSubmit(action)} className="space-y-6">
+    <form ref={formRef} onSubmit={keepOnSubmit(action)} onChange={() => setErrSeen(state)} className="space-y-6">
       {ai && <input type="hidden" name="aiSuggestion" value={JSON.stringify(ai)} />}
       {prefill.repooledFrom && <input type="hidden" name="repooledFrom" value={prefill.repooledFrom} />}
       <section className="card space-y-4">
@@ -149,7 +150,7 @@ export function ItemForm({ categories, conditions, platforms, bundleHints, limit
         <p className="text-ink/70">Submitting charges your postage for this box (farthest-zone estimate). You get the difference back once matched, or the full amount if you withdraw.</p>
       </section>
 
-      {state?.error && <p className="text-sm text-red-700" role="alert">{state.error}</p>}
+      {state?.error && errSeen !== state && <p className="text-sm text-red-700" role="alert">{state.error}</p>}
       <button className="btn-accent" disabled={pending}>{pending ? "Uploading…" : "Submit & pay postage"}</button>
     </form>
   );
