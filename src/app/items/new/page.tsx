@@ -3,6 +3,7 @@ import { db, schema } from "@/db";
 import { requireOnboardedUser } from "@/lib/auth";
 import { BUNDLE_HINT, CATEGORIES, CONDITIONS, MAX_DIMS_IN, MAX_WEIGHT_LB, PLATFORMS } from "@/lib/config";
 import { ItemForm, type Prefill } from "@/components/ItemForm";
+import { identifyAvailable } from "@/lib/identify";
 
 export default async function NewItem({ searchParams }: PageProps<"/items/new">) {
   const user = await requireOnboardedUser();
@@ -36,6 +37,7 @@ export default async function NewItem({ searchParams }: PageProps<"/items/new">)
         bundleHints={BUNDLE_HINT}
         limits={{ lb: MAX_WEIGHT_LB, dims: [...MAX_DIMS_IN] }}
         prefill={prefill}
+        aiEnabled={identifyAvailable()}
       />
     </div>
   );

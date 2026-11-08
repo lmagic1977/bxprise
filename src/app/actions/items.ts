@@ -13,6 +13,7 @@ import { chargePostage, latestValuation, refundPostage } from "@/lib/exchange";
 import { getReputation, tierOfValue, tierRank } from "@/lib/reputation";
 import { audit } from "@/lib/audit";
 import type { FormState } from "./auth";
+import { suggestionSchema } from "@/lib/identify-types";
 
 const itemSchema = z.object({
   title: z.string().trim().min(3, "Give your item a name.").max(100),
@@ -60,6 +61,11 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
   }
 
   const held = postageCents({ weightOz, dims }, user.zip!);
+  let aiSuggestion = null;
+  try {
+    const raw = String(fd.get("aiSuggestion") ?? "");
+    if (raw && raw.length < 20000) aiSuggestion = suggestionSchema.parse(JSON.parse(raw));
+  } catch { aiSuggestion = null; }
   const repooledFrom = Number(fd.get("repooledFrom")) || null;
   const itemId = await db.transaction(async (tx) => {
     const [it] = await tx
@@ -84,6 +90,7 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
         photoIds,
         postageHeldCents: held,
         repooledFromExchangeId: repooledFrom,
+        aiSuggestion,
       })
       .returning();
     await chargePostage(tx, user.id, it.id, held);

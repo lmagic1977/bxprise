@@ -43,7 +43,7 @@ async function askOnce(it: ItemLike, avoid?: string): Promise<string | null> {
     `Description: ${it.description.slice(0, 600)}`,
     avoid ? `Your last clue used the word "${avoid}", which gives it away. Avoid it.` : "",
   ].filter(Boolean).join("\n");
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch(`${process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com"}/v1/messages`, {
     method: "POST",
     headers: {
       "content-type": "application/json",

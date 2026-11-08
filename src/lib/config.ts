@@ -72,6 +72,12 @@ export const SUSPEND_AFTER_FRAUD = 2;
 // Tiers whose receivers get a riddle clue once a swap locks.
 export const RIDDLE_TIERS: readonly string[] = ["plus"];
 export const RIDDLE_MODEL = process.env.RIDDLE_MODEL ?? "claude-haiku-5-5";
+export const IDENTIFY_MODEL = process.env.IDENTIFY_MODEL ?? "claude-sonnet-5-5";
+export const WEB_SEARCH_TOOL = process.env.WEB_SEARCH_TOOL ?? "web_search_20250305";
+export const AI_IDENTIFY_DAILY_LIMIT = 15; // per user
+// Packing allowance added to a product's own box size/weight.
+export const PACK_PAD_IN = 2;
+export const PACK_PAD_OZ = 8;
 
 export const ACCEPT_WINDOW_HOURS = 48;
 export const SHIP_WINDOW_DAYS = 4;

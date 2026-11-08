@@ -18,6 +18,8 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
   const { it, owner } = row;
   const vals = await db.select().from(schema.valuations).where(eq(schema.valuations.itemId, id)).orderBy(desc(schema.valuations.version));
   const rep = await getReputation(owner.id);
+  const ai = vals.length === 0 ? it.aiSuggestion : null;
+  const aiMid = ai?.usedPriceLowUsd != null && ai.usedPriceHighUsd != null ? Math.round(((ai.usedPriceLowUsd + ai.usedPriceHighUsd) / 2) * 100) / 100 : null;
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="card space-y-3">
@@ -28,6 +30,14 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
         <p className="text-sm"><b>Checked:</b> {it.functionNote}</p>
         {it.wearNote && <p className="text-sm"><b>Wear:</b> {it.wearNote}</p>}
         <p className="text-sm"><b>Packed:</b> {(it.weightOz / 16).toFixed(2)} lb · {it.lengthIn}×{it.widthIn}×{it.heightIn} in · from {it.shipFromZip} · postage held {usd(it.postageHeldCents)}</p>
+        {it.aiSuggestion && (() => { const a = it.aiSuggestion; return (
+          <div className="rounded-xl border border-plum/30 p-3 text-sm">
+            <p><b>AI identification</b> ({a.confidence} confidence{a.searched === false ? ", no web search" : ""}): {a.identified ? <>{a.title}{a.brand ? ` · ${a.brand}` : ""}</> : "not identified"}</p>
+            {a.usedPriceLowUsd != null && <p>Used prices: ${a.usedPriceLowUsd}–${a.usedPriceHighUsd} · {a.priceBasis}</p>}
+            {a.productDimsIn && <p>Product box: {a.productDimsIn.join(" × ")} in, {a.productWeightOz} oz → owner entered {it.lengthIn}×{it.widthIn}×{it.heightIn} in, {it.weightOz} oz</p>}
+            {a.notes && <p className="text-orange-800">AI notes: {a.notes}</p>}
+            {a.sources.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs">{a.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer" className="underline">{s.title}</a></li>)}</ul>}
+          </div>); })()}
         <div className="rounded-xl bg-plum-soft p-3 text-sm">
           <p><b>Riddle clue</b> {it.riddle ? <>({it.riddleSource === "ai" ? "AI" : "written by admin"}): <i>{it.riddle}</i></> : <span className="text-ink/60">none yet</span>}</p>
           <div className="mt-2"><ActionButton action={regenerateRiddle.bind(null, id)} className="btn-ghost !py-1">{it.riddle ? "Rewrite with AI" : "Generate with AI"}</ActionButton></div>
@@ -50,11 +60,12 @@ export default async function ReviewItem({ params }: PageProps<"/admin/items/[id
             <option value="reject">Reject (refunds postage)</option>
           </select>
           <div className="grid grid-cols-3 gap-2">
-            <label className="text-xs">Low $<input className="input" name="low" type="number" step="0.01" /></label>
-            <label className="text-xs">Ref $<input className="input" name="mid" type="number" step="0.01" /></label>
-            <label className="text-xs">High $<input className="input" name="high" type="number" step="0.01" /></label>
+            <label className="text-xs">Low $<input className="input" name="low" type="number" step="0.01" defaultValue={ai?.usedPriceLowUsd ?? undefined} /></label>
+            <label className="text-xs">Ref $<input className="input" name="mid" type="number" step="0.01" defaultValue={aiMid ?? undefined} /></label>
+            <label className="text-xs">High $<input className="input" name="high" type="number" step="0.01" defaultValue={ai?.usedPriceHighUsd ?? undefined} /></label>
           </div>
-          <input className="input" name="basis" placeholder="Basis, e.g. 3 recent eBay sold listings, used, complete" />
+          <input className="input" name="basis" defaultValue={ai?.priceBasis ? `AI-suggested: ${ai.priceBasis}` : ""} placeholder="Basis, e.g. 3 recent eBay sold listings, used, complete" />
+          {ai?.priceBasis && <p className="hint !mt-0">Prefilled from AI — check the sources before saving.</p>}
           <select className="input" name="confidence" defaultValue="medium">
             <option value="low">Low confidence</option><option value="medium">Medium confidence</option><option value="high">High confidence</option>
           </select>
