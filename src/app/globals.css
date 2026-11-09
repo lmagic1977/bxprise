@@ -39,4 +39,11 @@ body {
 .feed-track { animation: feed-scroll 40s linear infinite; }
 .feed-window:hover .feed-track { animation-play-state: paused; }
 .feed-window { mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); }
-@media (prefers-reduced-motion: reduce) { .feed-track { animation: none; } .feed-window { overflow-y: auto; } }
+.feed-section:has(.feed-pause:checked) .feed-track { animation: none; }
+.feed-section:has(.feed-pause:checked) .feed-window { overflow-y: auto; mask-image: none; }
+.feed-section:has(.feed-pause:checked) .feed-duplicate { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .feed-track { animation: none; }
+  .feed-window { overflow-y: auto; mask-image: none; }
+  .feed-duplicate, .feed-control { display: none; }
+}

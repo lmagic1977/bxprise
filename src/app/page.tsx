@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { CATEGORIES, MAX_DIMS_IN, MAX_WEIGHT_LB, TIERS } from "@/lib/config";
 import { usd } from "@/lib/money";
-import { recentBoxes } from "@/lib/feed";
+import { exampleBoxes, recentBoxes } from "@/lib/feed";
 import { RecentBoxes } from "@/components/RecentBoxes";
 
 const steps = [
@@ -15,7 +15,7 @@ const steps = [
 
 export default async function Home() {
   if (await getUser()) redirect("/dashboard");
-  const feed = await recentBoxes().catch(() => []);
+  const feed = await recentBoxes().catch(() => exampleBoxes());
   return (
     <div className="space-y-16">
       <section className="grid items-center gap-10 py-6 md:grid-cols-2">

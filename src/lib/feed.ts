@@ -14,16 +14,22 @@ const SHORT: Record<string, string> = {
 };
 
 // Clearly labeled illustrations, shown only while there is little real activity.
-const EXAMPLES: [string, string, string][] = [
-  ["Mike", "Redlands, CA", "video_games"],
-  ["Ana", "Austin, TX", "books"],
-  ["Chris", "Portland, OR", "board_games_puzzles"],
-  ["Jess", "Columbus, OH", "trading_cards"],
-  ["Sam", "Denver, CO", "craft_yarn"],
-  ["Lee", "Atlanta, GA", "toys_figures"],
-  ["Dana", "Seattle, WA", "movies_music"],
-  ["Ray", "Phoenix, AZ", "video_games"],
+const EXAMPLES: [string, string, string, string][] = [
+  ["Mike", "Redlands, CA", "video_games", "12:15 11/15"],
+  ["Ana", "Austin, TX", "books", "11:42 11/15"],
+  ["Chris", "Portland, OR", "board_games_puzzles", "10:36 11/15"],
+  ["Jess", "Columbus, OH", "trading_cards", "09:18 11/15"],
+  ["Sam", "Denver, CO", "craft_yarn", "18:52 11/14"],
+  ["Lee", "Atlanta, GA", "toys_figures", "17:34 11/14"],
+  ["Dana", "Seattle, WA", "movies_music", "15:08 11/14"],
+  ["Ray", "Phoenix, AZ", "video_games", "13:26 11/14"],
 ];
+
+export function exampleBoxes(limit = EXAMPLES.length): FeedRow[] {
+  return EXAMPLES.slice(0, limit).map(([name, place, cat, at], i) => ({
+    key: `e${i}`, name, place, category: SHORT[cat], at, example: true,
+  }));
+}
 
 const MIN_REAL = 6;
 const SHOWN = ["valuation_ready", "in_pool", "paused", "proposed", "locked", "exchanged"];
@@ -70,10 +76,5 @@ export async function recentBoxes(): Promise<FeedRow[]> {
       };
     });
   if (real.length >= MIN_REAL) return real;
-  return [
-    ...real,
-    ...EXAMPLES.slice(0, Math.max(0, 8 - real.length)).map(([name, place, cat], i) => ({
-      key: `e${i}`, name, place, category: SHORT[cat], at: null, example: true,
-    })),
-  ];
+  return [...real, ...exampleBoxes(8 - real.length)];
 }
