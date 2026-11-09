@@ -44,12 +44,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="christmas-swap-title" className="grid overflow-hidden rounded-3xl bg-[#ffebe0] md:grid-cols-2">
-        <div className="flex flex-col items-start justify-center gap-4 p-6 sm:p-9">
-          <h2 id="christmas-swap-title" className="!text-2xl sm:!text-3xl">Get a Christmas gift from a stranger.</h2>
-          <Link href="/signup" className="btn-accent">Start swapping</Link>
+      <section aria-labelledby="christmas-swap-title" className="relative isolate flex min-h-80 w-full items-end overflow-hidden rounded-3xl bg-[#d890b7] sm:items-start sm:aspect-[2/1]">
+        <img src="/christmas-swap.webp" alt="Christmas tree surrounded by board games, puzzles, a collectible toy, yarn, books, discs, video games and trading cards" width={840} height={560} loading="lazy" className="absolute inset-0 -z-20 size-full object-cover object-bottom" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-t from-[#21102b]/95 via-[#21102b]/30 to-transparent sm:bg-linear-to-br sm:from-[#21102b]/85 sm:via-transparent sm:to-transparent" />
+        <div className="flex flex-col items-start gap-3 p-5 text-white sm:p-8 lg:p-10">
+          <h2 id="christmas-swap-title" className="max-w-64 !text-2xl leading-tight font-bold lg:!text-4xl">Get a Christmas gift from a stranger.</h2>
+          <Link href="/signup" className="btn bg-white text-plum hover:bg-orange-50">Start swapping</Link>
         </div>
-        <img src="/christmas-swap.webp" alt="Christmas tree surrounded by board games, puzzles, a collectible toy, yarn, books, discs, video games and trading cards" width={840} height={560} loading="lazy" className="h-auto w-full" />
       </section>
 
       <RecentBoxes rows={feed} />
