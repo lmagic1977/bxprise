@@ -11,7 +11,6 @@ export function RecentBoxes({ rows }: { rows: FeedRow[] }) {
       <span className="order-3 break-words text-ink/70 sm:order-2">{r.place}</span>
       <span className="order-4 text-right font-semibold text-plum sm:order-3 sm:text-left">{r.category}</span>
       <span className="order-2 flex items-center justify-end gap-2 sm:order-4">
-        {r.example && <span className="rounded-full bg-tangerine-soft px-2 py-0.5 text-[11px] text-orange-900">Example</span>}
         {r.at && <span className="whitespace-nowrap tabular-nums text-ink/70">{r.at}</span>}
       </span>
     </li>
