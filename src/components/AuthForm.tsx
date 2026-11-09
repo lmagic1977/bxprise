@@ -2,13 +2,16 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { login, signup } from "@/app/actions/auth";
+import { Logo } from "./Logo";
 import { keepOnSubmit } from "./keepForm";
 
 export function AuthForm({ mode, providers = [], oauthError }: { mode: "login" | "signup"; providers?: string[]; oauthError?: string }) {
   const [state, action, pending] = useActionState(mode === "login" ? login : signup, undefined);
   return (
     <form onSubmit={keepOnSubmit(action)} className="card mx-auto max-w-sm space-y-4">
-      <h1>{mode === "login" ? "Welcome back" : "Join BXprise"}</h1>
+      <h1 className="flex items-baseline gap-1.5">
+        {mode === "login" ? "Welcome back" : <>Join <Logo size={24} /></>}
+      </h1>
       {oauthError && <p className="text-sm text-red-700" role="alert">{oauthError}</p>}
       {providers.length > 0 && (
         <div className="space-y-2">
