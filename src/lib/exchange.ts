@@ -1,6 +1,7 @@
 import "server-only";
 import { and, desc, eq, inArray, isNull, lt } from "drizzle-orm";
 import { db, schema, type Tx } from "@/db";
+import { stripeSandbox } from "./stripe";
 import { audit } from "./audit";
 import {
   ACCEPT_WINDOW_HOURS,
@@ -61,12 +62,43 @@ export async function chargePostage(tx: Tx, userId: number, itemId: number, amou
 
 export async function refundPostage(tx: Tx, userId: number, itemId: number, amountCents: number, why: string) {
   if (amountCents <= 0) return;
+  const key = `refund:item:${itemId}:${why}`;
+  const [charge] = await tx.select().from(payments)
+    .where(eq(payments.idempotencyKey, `charge:item:${itemId}`)).for("update");
+  if (charge?.provider === "stripe") {
+    const previous = await tx.select().from(payments)
+      .where(and(eq(payments.itemId, itemId), eq(payments.kind, "postage_refund")));
+    if (previous.some((payment) => payment.idempotencyKey === key)) return;
+    const refunded = previous.reduce((sum, payment) => sum + payment.amountCents, 0);
+    const amount = Math.min(amountCents, charge.amountCents - refunded);
+    if (amount <= 0) return;
+    const stripe = stripeSandbox();
+    if (!stripe || !charge.providerReference) throw new Error("Stripe refunds are unavailable.");
+    const refund = await stripe.refunds.create({
+      payment_intent: charge.providerReference,
+      amount,
+      metadata: { bxprisePostageRefund: key },
+    }, { idempotencyKey: key });
+    if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error("Stripe refund failed.");
+    await tx.insert(payments).values({
+      userId,
+      itemId,
+      kind: "postage_refund",
+      amountCents: amount,
+      idempotencyKey: key,
+      provider: "stripe",
+      providerReference: refund.id,
+      status: refund.status,
+    });
+    return;
+  }
+  if (!charge) return;
   await testPayment(tx, {
     userId,
     itemId,
     kind: "postage_refund",
     amountCents,
-    key: `refund:item:${itemId}:${why}`,
+    key,
   });
 }
 

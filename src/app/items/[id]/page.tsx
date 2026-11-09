@@ -7,7 +7,7 @@ import { cardConditionLabel, cardFormatLabel, categoryLabel, conditionLabel, pla
 import { latestValuation } from "@/lib/exchange";
 import { tierOfValue } from "@/lib/reputation";
 import { usd } from "@/lib/money";
-import { acceptValuation, addInfo, requestReview, setPaused, withdrawItem } from "@/app/actions/items";
+import { acceptValuation, addInfo, payPostage, requestReview, setPaused, withdrawItem } from "@/app/actions/items";
 import { ActionButton, ActionForm } from "@/components/ActionButton";
 import { ItemStatus } from "@/components/Status";
 import { Photos } from "@/components/Photos";
@@ -40,6 +40,21 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
         </div>
         <ItemStatus s={it.status} />
       </div>
+
+      {it.status === "awaiting_payment" && (
+        <section className="card space-y-3">
+          <h2>Pay {usd(it.postageHeldCents)} in test postage</h2>
+          {sp.checkout === "returned" ? (
+            <p className="text-sm">Stripe is confirming your payment. Refresh this page in a moment.</p>
+          ) : (
+            <>
+              <p className="text-sm">We’ll review your item after Stripe confirms payment.</p>
+              {sp.checkout === "unavailable" && <p className="text-sm">Checkout is unavailable or expired. If this submission is more than 23 hours old, submit the item again.</p>}
+              <ActionButton action={payPostage.bind(null, id)}>Continue to Stripe</ActionButton>
+            </>
+          )}
+        </section>
+      )}
 
       {it.status === "needs_info" && (
         <section className="card space-y-3 border-red-200">
@@ -97,7 +112,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
         <h2>Postage</h2>
         {pays.map((p) => (
           <p key={p.id} className="flex justify-between">
-            <span>{p.kind === "postage_charge" ? "Charged (farthest-zone estimate)" : "Refunded"} · {p.createdAt.toLocaleDateString("en-US")} {p.provider === "test" && <span className="pill bg-amber-100 text-amber-900">test</span>}</span>
+            <span>{p.kind === "postage_charge" ? "Charged (farthest-zone estimate)" : p.status === "succeeded" ? "Refunded" : `Refund: ${p.status}`} · {p.createdAt.toLocaleDateString("en-US")} <span className="pill bg-amber-100 text-amber-900">{p.provider === "stripe" ? "Stripe test" : "test"}</span></span>
             <span className={p.kind === "postage_refund" ? "text-green-700" : ""}>{p.kind === "postage_refund" ? "−" : ""}{usd(p.amountCents)}</span>
           </p>
         ))}

@@ -94,7 +94,7 @@ export const items = pgTable(
     shipFromZip: text("ship_from_zip").notNull(),
     photoIds: jsonb("photo_ids").$type<string[]>().notNull().default([]),
     status: text("status").notNull().default("pending_review"),
-    // pending_review | needs_info | valuation_ready | in_pool | paused | proposed
+    // awaiting_payment | pending_review | needs_info | valuation_ready | in_pool | paused | proposed
     // | locked | exchanged | withdrawn | rejected
     postageHeldCents: integer("postage_held_cents").notNull().default(0),
     adminNote: text("admin_note"),
@@ -127,6 +127,7 @@ export const payments = pgTable("payments", {
   kind: text("kind").notNull(), // postage_charge | postage_refund
   amountCents: integer("amount_cents").notNull(),
   provider: text("provider").notNull().default("test"),
+  providerReference: text("provider_reference"),
   status: text("status").notNull().default("succeeded"),
   idempotencyKey: text("idempotency_key").notNull().unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

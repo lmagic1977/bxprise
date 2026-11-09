@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
@@ -26,14 +26,18 @@ export async function reviewItem(itemId: number, _: FormState, fd: FormData): Pr
   const note = String(fd.get("note") ?? "").trim();
   const [it] = await db.select().from(schema.items).where(eq(schema.items.id, itemId));
   if (!it) return { error: "Not found." };
+  if (!["pending_review", "needs_info", "valuation_ready"].includes(it.status)) return { error: "This item is no longer available for review." };
 
   if (decision === "needs_info" || decision === "reject") {
     if (!note) return { error: "Write a note for the owner." };
-    await db.transaction(async (tx) => {
-      await tx.update(schema.items).set({ status: decision === "reject" ? "rejected" : "needs_info", adminNote: note }).where(eq(schema.items.id, itemId));
+    const updated = await db.transaction(async (tx) => {
+      const [changed] = await tx.update(schema.items).set({ status: decision === "reject" ? "rejected" : "needs_info", adminNote: note }).where(and(eq(schema.items.id, itemId), eq(schema.items.status, it.status))).returning({ id: schema.items.id });
+      if (!changed) return false;
       if (decision === "reject") await refundPostage(tx, it.ownerId, itemId, it.postageHeldCents, "rejected");
       await audit(admin.id, `item.${decision}`, "item", itemId, { note }, tx);
+      return true;
     });
+    if (!updated) return { error: "This item changed. Refresh and try again." };
   } else {
     const p = valSchema.safeParse(Object.fromEntries(fd));
     if (!p.success) return { error: p.error.issues[0].message };
@@ -47,14 +51,18 @@ export async function reviewItem(itemId: number, _: FormState, fd: FormData): Pr
       riddleSource = riddle ? "ai" : null;
     }
     const [prev] = await db.select().from(schema.valuations).where(eq(schema.valuations.itemId, itemId)).orderBy(desc(schema.valuations.version)).limit(1);
-    await db.transaction(async (tx) => {
+    const updated = await db.transaction(async (tx) => {
+      const [changed] = await tx.update(schema.items).set({ status: "valuation_ready", adminNote: note || null, riddle: riddle || null, riddleSource })
+        .where(and(eq(schema.items.id, itemId), eq(schema.items.status, it.status))).returning({ id: schema.items.id });
+      if (!changed) return false;
       await tx.insert(schema.valuations).values({
         itemId, version: (prev?.version ?? 0) + 1, lowCents: toCents(low), highCents: toCents(high), midCents: toCents(mid),
         basis, confidence, createdBy: admin.id,
       });
-      await tx.update(schema.items).set({ status: "valuation_ready", adminNote: note || null, riddle: riddle || null, riddleSource }).where(eq(schema.items.id, itemId));
       await audit(admin.id, "valuation.create", "item", itemId, { low, high, mid, confidence }, tx);
+      return true;
     });
+    if (!updated) return { error: "This item changed. Refresh and try again." };
   }
   revalidatePath("/admin/items");
   redirect("/admin/items");

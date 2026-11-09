@@ -1,4 +1,5 @@
 const ITEM: Record<string, [string, string]> = {
+  awaiting_payment: ["Awaiting payment", "bg-amber-100 text-amber-900"],
   pending_review: ["In review", "bg-amber-100 text-amber-900"],
   needs_info: ["Needs info", "bg-red-100 text-red-800"],
   valuation_ready: ["Value ready — confirm", "bg-tangerine-soft text-orange-800"],

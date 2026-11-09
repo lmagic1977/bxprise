@@ -64,6 +64,13 @@
       "when": 1794208309398,
       "tag": "0008_curvy_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794210996955,
+      "tag": "0009_aromatic_fabian_cortez",
+      "breakpoints": true
     }
   ]
 }

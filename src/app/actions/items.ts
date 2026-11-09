@@ -11,6 +11,7 @@ import { checkPackLimits, postageCents, sortDims } from "@/lib/postage";
 import { saveImage } from "@/lib/storage";
 import { chargePostage, latestValuation, refundPostage } from "@/lib/exchange";
 import { getReputation, tierOfValue, tierRank } from "@/lib/reputation";
+import { postageCheckout, stripeSandbox } from "@/lib/stripe";
 import { audit } from "@/lib/audit";
 import type { FormState } from "./auth";
 import { suggestionSchema } from "@/lib/identify-types";
@@ -81,6 +82,7 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
     if (raw && raw.length < 20000) aiSuggestion = suggestionSchema.parse(JSON.parse(raw));
   } catch { aiSuggestion = null; }
   const repooledFrom = Number(fd.get("repooledFrom")) || null;
+  const useStripe = Boolean(stripeSandbox());
   const itemId = await db.transaction(async (tx) => {
     const [it] = await tx
       .insert(schema.items)
@@ -104,15 +106,17 @@ export async function createItem(_: FormState, fd: FormData): Promise<FormState>
         heightIn: dims[2],
         shipFromZip: user.zip!,
         photoIds,
+        status: useStripe ? "awaiting_payment" : "pending_review",
         postageHeldCents: held,
         repooledFromExchangeId: repooledFrom,
         aiSuggestion,
       })
       .returning();
-    await chargePostage(tx, user.id, it.id, held);
+    if (!useStripe) await chargePostage(tx, user.id, it.id, held);
     await audit(user.id, "item.create", "item", it.id, { held }, tx);
     return it.id;
   });
+  if (useStripe) await payPostage(itemId);
   redirect(`/items/${itemId}?new=1`);
 }
 
@@ -124,6 +128,19 @@ async function ownItem(itemId: number) {
     .where(and(eq(schema.items.id, itemId), eq(schema.items.ownerId, user.id)));
   if (!it) throw new Error("Item not found.");
   return { user, it };
+}
+
+export async function payPostage(itemId: number): Promise<FormState> {
+  const { user, it } = await ownItem(itemId);
+  if (user.suspendedAt || it.status !== "awaiting_payment") return { error: "This item is not awaiting payment." };
+  let url: string | null;
+  try {
+    url = await postageCheckout(it);
+  } catch {
+    url = null;
+  }
+  if (url) redirect(url);
+  redirect(`/items/${itemId}?checkout=unavailable`);
 }
 
 export async function acceptValuation(itemId: number, valuationId: number): Promise<FormState> {
@@ -169,7 +186,9 @@ export async function withdrawItem(itemId: number) {
   const { user, it } = await ownItem(itemId);
   if (!["pending_review", "needs_info", "valuation_ready", "in_pool", "paused"].includes(it.status)) return;
   await db.transaction(async (tx) => {
-    await tx.update(schema.items).set({ status: "withdrawn" }).where(eq(schema.items.id, itemId));
+    const [changed] = await tx.update(schema.items).set({ status: "withdrawn" })
+      .where(and(eq(schema.items.id, itemId), eq(schema.items.status, it.status))).returning({ id: schema.items.id });
+    if (!changed) return;
     await refundPostage(tx, user.id, itemId, it.postageHeldCents, "withdraw");
     await audit(user.id, "item.withdraw", "item", itemId, null, tx);
   });
