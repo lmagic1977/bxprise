@@ -31,15 +31,16 @@ export default async function Home() {
           </div>
         </div>
         <div className="relative mx-auto aspect-square w-full max-w-sm">
-          <div aria-hidden="true" className="absolute inset-[5%] rounded-full bg-plum-soft" />
           <img
-            src="/hero-box-3d.webp"
-            alt=""
+            src="/hero-unboxing.webp"
+            alt="Hands unwrapping a collectible inside a BXprise mystery box"
             width={800}
             height={800}
             fetchPriority="high"
-            className="relative h-full w-full object-contain"
+            className="h-full w-full rounded-3xl object-cover"
           />
+          <img src="/hero-box-3d.webp" alt="" width={80} height={80}
+            className="absolute top-2 right-2 size-16 sm:size-20" />
         </div>
       </section>
 
