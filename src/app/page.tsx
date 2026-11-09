@@ -44,6 +44,14 @@ export default async function Home() {
         </div>
       </section>
 
+      <section aria-labelledby="christmas-swap-title" className="grid overflow-hidden rounded-3xl bg-[#ffebe0] md:grid-cols-2">
+        <div className="flex flex-col items-start justify-center gap-4 p-6 sm:p-9">
+          <h2 id="christmas-swap-title" className="!text-2xl sm:!text-3xl">Get a Christmas gift from a stranger.</h2>
+          <Link href="/signup" className="btn-accent">Start swapping</Link>
+        </div>
+        <img src="/christmas-swap.webp" alt="Christmas tree surrounded by board games, puzzles, a collectible toy, yarn, books, discs, video games and trading cards" width={840} height={560} loading="lazy" className="h-auto w-full" />
+      </section>
+
       <RecentBoxes rows={feed} />
 
       <section aria-labelledby="swap-steps-title">
