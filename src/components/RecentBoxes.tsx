@@ -3,7 +3,6 @@ import type { FeedRow } from "@/lib/feed";
 export function RecentBoxes({ rows }: { rows: FeedRow[] }) {
   if (!rows.length) return null;
   const scrolls = rows.length > 4;
-  const hasExamples = rows.some((r) => r.example);
   const line = (r: FeedRow, duplicate: boolean) => (
     <li key={(duplicate ? "d" : "") + r.key} aria-hidden={duplicate || undefined}
       className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-b border-ink/5 px-4 py-2.5 text-xs sm:grid-cols-[1fr_1.4fr_1.4fr_auto] sm:text-sm ${duplicate ? "feed-duplicate" : ""}`}>
@@ -23,7 +22,7 @@ export function RecentBoxes({ rows }: { rows: FeedRow[] }) {
           <input type="checkbox" className="feed-pause accent-plum" /> Pause scrolling
         </label>}
       </div>
-      <p className="px-4 pb-2 text-xs text-ink/70">{hasExamples ? "Example entries are fictional. Times shown in Pacific." : "Times shown in Pacific."}</p>
+      <p className="px-4 pb-2 text-xs text-ink/70">Times shown in Pacific.</p>
       <div className={`relative ${scrolls ? "feed-window h-56 overflow-hidden" : ""}`}>
         <ul className={scrolls ? "feed-track" : ""}>
           {rows.map((r) => line(r, false))}
