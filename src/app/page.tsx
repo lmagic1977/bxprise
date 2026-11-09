@@ -68,23 +68,63 @@ export default async function Home() {
         </ol>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
-        <div className="card">
+      <section aria-label="Swap essentials" className="grid gap-4 md:grid-cols-3">
+        <article className="rounded-2xl bg-[#ffebe0] p-5">
+          <div aria-hidden="true" className="mb-4 grid size-14 place-items-center rounded-2xl bg-white/70 text-plum">
+            <svg viewBox="0 0 32 32" className="size-9" fill="currentColor">
+              <rect x="3" y="3" width="12" height="12" rx="4" />
+              <rect x="17" y="3" width="12" height="12" rx="4" fill="#f97316" />
+              <rect x="3" y="17" width="12" height="12" rx="4" fill="#f97316" />
+              <rect x="17" y="17" width="12" height="12" rx="4" />
+            </svg>
+          </div>
           <h2>Open categories</h2>
-          <ul className="mt-2 space-y-1 text-sm">{CATEGORIES.map((c) => <li key={c.id}>• {c.label}</li>)}</ul>
-        </div>
-        <div className="card">
-          <h2>What can go in a box</h2>
-          <p className="mt-2 text-sm text-ink/70">Complete and fully working. Packed weight up to {MAX_WEIGHT_LB} lb, box up to {MAX_DIMS_IN.join(" × ")} in. No batteries, liquids, food, fragile or broken items.</p>
-        </div>
-        <div className="card">
-          <h2>Value tiers</h2>
-          <ul className="mt-2 space-y-1 text-sm">
-            {TIERS.map((t) => (
-              <li key={t.id}>• <b>{t.label}</b>: {usd(t.minCents)}–{usd(t.maxCents)} {t.minCompleted ? `(after ${t.minCompleted} good swaps)` : "(everyone)"}</li>
+          <p className="mt-1 text-sm text-ink/70">Pick something from one of these categories.</p>
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {CATEGORIES.map((category) => (
+              <li key={category.id} className="rounded-full bg-white/75 px-2.5 py-1 text-xs font-medium">{category.label.split(" (")[0]}</li>
             ))}
           </ul>
-        </div>
+        </article>
+        <article className="rounded-2xl bg-plum-soft p-5">
+          <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-white/70">
+            <img src="/icon.svg" alt="" width={38} height={38} />
+          </div>
+          <h2>What can go in a box</h2>
+          <p className="mt-1 text-sm text-ink/70">Complete, working items only.</p>
+          <dl className="mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-white/75 p-2.5">
+              <dt className="text-xs text-ink/70">Max weight</dt>
+              <dd className="text-sm font-bold">{MAX_WEIGHT_LB} lb</dd>
+            </div>
+            <div className="rounded-xl bg-white/75 p-2.5">
+              <dt className="text-xs text-ink/70">Max size</dt>
+              <dd className="text-sm font-bold">{MAX_DIMS_IN.join(" × ")} in</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-xs text-ink/70">No batteries, liquids, food, fragile or broken items.</p>
+        </article>
+        <article className="rounded-2xl bg-[#ffebe0] p-5">
+          <div aria-hidden="true" className="mb-4 grid size-14 place-items-center rounded-2xl bg-white/70 text-plum">
+            <svg viewBox="0 0 32 32" className="size-9" fill="currentColor">
+              <rect x="3" y="19" width="7" height="10" rx="2" fill="#f97316" />
+              <rect x="12.5" y="12" width="7" height="17" rx="2" />
+              <rect x="22" y="4" width="7" height="25" rx="2" fill="#f97316" />
+            </svg>
+          </div>
+          <h2>Value tiers</h2>
+          <ul className="mt-3 space-y-2">
+            {TIERS.map((tier) => (
+              <li key={tier.id} className="rounded-xl bg-white/75 px-3 py-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2 text-sm font-bold">
+                  <span>{tier.label}</span>
+                  <span className="text-plum">{usd(tier.minCents)}–{usd(tier.maxCents)}</span>
+                </div>
+                <p className="text-xs text-ink/70">{tier.minCompleted ? `Unlocks after ${tier.minCompleted} good swaps` : "Open to everyone"}</p>
+              </li>
+            ))}
+          </ul>
+        </article>
       </section>
     </div>
   );
