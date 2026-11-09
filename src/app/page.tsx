@@ -7,10 +7,10 @@ import { exampleBoxes, recentBoxes } from "@/lib/feed";
 import { RecentBoxes } from "@/components/RecentBoxes";
 
 const steps = [
-  ["Pack up something you love but don't use", "Complete, working, and in one of our open categories. Snap a few photos."],
-  ["Pay your postage, get a value", "You pay postage for your box when you submit (refunded if we can't accept it or you withdraw). We review it, give a value range, and once you confirm it you join the weekly match."],
-  ["Swap blind", "You see only the category, value range and condition of what's coming. Both say yes, both ship."],
-  ["Unbox the surprise", "Open it, read the sender's note, rate the swap. Didn't click? Put it straight back in the pool."],
+  { title: "Pack it", copy: "Pick a good item and snap a few photos.", position: "left top" },
+  { title: "Get it valued", copy: "Pay postage and confirm your box’s value range.", position: "right top" },
+  { title: "Swap blind", copy: "Both accept the match, then both ship.", position: "left bottom" },
+  { title: "Unbox it", copy: "Open your surprise and rate the swap.", position: "right bottom" },
 ];
 
 export default async function Home() {
@@ -44,14 +44,28 @@ export default async function Home() {
 
       <RecentBoxes rows={feed} />
 
-      <section className="grid gap-4 md:grid-cols-4">
-        {steps.map(([t, d], i) => (
-          <div key={t} className="card">
-            <p className="text-3xl font-black text-tangerine">{i + 1}</p>
-            <h2 className="mt-2 !text-base">{t}</h2>
-            <p className="mt-1 text-sm text-ink/70">{d}</p>
-          </div>
-        ))}
+      <section aria-labelledby="swap-steps-title">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+          <h2 id="swap-steps-title" className="!text-2xl">How it works</h2>
+          <Link href="/how-it-works" className="text-sm font-semibold text-plum hover:underline">Read the swap rules →</Link>
+        </div>
+        <ol className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-4 md:gap-x-5">
+          {steps.map(({ title, copy, position }, i) => (
+            <li key={title} className="min-w-0">
+              <div
+                aria-hidden="true"
+                className="relative aspect-square overflow-hidden rounded-2xl bg-plum-soft"
+                style={{ backgroundImage: "url('/swap-steps.webp')", backgroundSize: "200% 200%", backgroundPosition: position }}
+              >
+                <span className="absolute top-2.5 left-2.5 rounded-full bg-white px-2 py-1 text-xs font-bold tabular-nums text-ink">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <h3 className="mt-3 font-bold text-ink">{title}</h3>
+              <p className="mt-1 text-sm leading-snug text-ink/70">{copy}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="grid gap-6 md:grid-cols-3">
