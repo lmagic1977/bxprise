@@ -31,14 +31,15 @@ export default async function Home() {
           </div>
         </div>
         <div className="relative mx-auto aspect-square w-full max-w-sm">
-          <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
-            <circle cx="100" cy="100" r="92" fill="#ede9fe" />
-            <path d="M40 80 L100 50 L160 80 L160 150 L100 180 L40 150 Z" fill="#f97316" />
-            <path d="M40 80 L100 110 L160 80 M100 110 L100 180" stroke="#fff" strokeWidth="4" fill="none" />
-            <path d="M58 98 L82 140 M82 98 L58 140" stroke="#1f1534" strokeWidth="7" strokeLinecap="round" />
-            <path d="M100 50 L100 20 M85 28 L100 20 L115 28" stroke="#5b21b6" strokeWidth="5" fill="none" strokeLinecap="round" />
-            <circle cx="150" cy="40" r="6" fill="#5b21b6" /><circle cx="45" cy="45" r="4" fill="#f97316" /><circle cx="170" cy="120" r="4" fill="#5b21b6" />
-          </svg>
+          <div aria-hidden="true" className="absolute inset-[5%] rounded-full bg-plum-soft" />
+          <img
+            src="/hero-box-3d.webp"
+            alt=""
+            width={800}
+            height={800}
+            fetchPriority="high"
+            className="relative h-full w-full object-contain"
+          />
         </div>
       </section>
 
