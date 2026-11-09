@@ -7,7 +7,7 @@ type Cat = { id: string; label: string };
 type U = {
   displayName: string; addressName: string | null; addressLine1: string | null; addressLine2: string | null;
   city: string | null; state: string | null; zip: string | null; bio: string | null; interests: string | null;
-  exclusions: string | null; wantedCategories: string[]; platforms: string[]; interestTags: string[]; interestOther: Record<string, string>;
+  exclusions: string | null; wantedCategories: string[]; platforms: string[]; interestTags: string[]; interestOther: Record<string, string>; showInFeed: boolean;
 };
 
 export function ProfileForm({ user, categories, platforms, interestTags, onboarding }: {
@@ -94,6 +94,10 @@ export function ProfileForm({ user, categories, platforms, interestTags, onboard
           <label className="field-label" htmlFor="bio">Short intro (shown to partners after a completed swap)</label>
           <textarea className="input" id="bio" name="bio" rows={2} defaultValue={v("bio")} maxLength={300} />
         </div>
+        <label className="flex gap-2 text-sm">
+          <input type="checkbox" name="showInFeed" defaultChecked={user.showInFeed} className="accent-plum" />
+          <span>Show my first name, city and item category in the homepage &ldquo;Recent boxes&rdquo; feed when I submit a box (never your address, photos or item details).</span>
+        </label>
       </section>
 
       <section className="card space-y-4">

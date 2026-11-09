@@ -20,6 +20,7 @@ export default function Privacy() {
         <li>Your item photos and details: only you and our team, until a swap is complete; then your swap partner.</li>
         <li>Your address: our team, the shipping carrier, and your swap partner on the package label. Never on your profile.</li>
         <li>Your nickname, short intro and interests: your swap partner, after the swap is complete.</li>
+        <li>Homepage &ldquo;Recent boxes&rdquo; feed: the first word of your nickname, your city and state, the category of a box you submitted and when. You can turn this off in your profile.</li>
         <li>We do not sell your personal information.</li>
       </ul>
 

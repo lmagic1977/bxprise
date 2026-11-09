@@ -101,6 +101,7 @@ export async function saveProfile(_: FormState, fd: FormData): Promise<FormState
       platforms,
       interestTags,
       interestOther,
+      showInFeed: fd.get("showInFeed") === "on",
       ...(onboarding ? { ageConfirmed: true, rulesAcceptedAt: new Date() } : {}),
     })
     .where(eq(schema.users.id, user.id));

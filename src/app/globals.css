@@ -33,3 +33,10 @@ body {
   h1 { @apply text-2xl font-bold tracking-tight; }
   h2 { @apply text-lg font-semibold; }
 }
+
+/* Homepage "Recent boxes" ticker */
+@keyframes feed-scroll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+.feed-track { animation: feed-scroll 40s linear infinite; }
+.feed-window:hover .feed-track { animation-play-state: paused; }
+.feed-window { mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); }
+@media (prefers-reduced-motion: reduce) { .feed-track { animation: none; } .feed-window { overflow-y: auto; } }

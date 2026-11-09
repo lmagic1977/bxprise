@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { CATEGORIES, MAX_DIMS_IN, MAX_WEIGHT_LB, TIERS } from "@/lib/config";
 import { usd } from "@/lib/money";
+import { recentBoxes } from "@/lib/feed";
+import { RecentBoxes } from "@/components/RecentBoxes";
 
 const steps = [
   ["Pack up something you love but don't use", "Complete, working, and in one of our open categories. Snap a few photos."],
@@ -13,6 +15,7 @@ const steps = [
 
 export default async function Home() {
   if (await getUser()) redirect("/dashboard");
+  const feed = await recentBoxes().catch(() => []);
   return (
     <div className="space-y-16">
       <section className="grid items-center gap-10 py-6 md:grid-cols-2">
@@ -38,6 +41,8 @@ export default async function Home() {
           </svg>
         </div>
       </section>
+
+      <RecentBoxes rows={feed} />
 
       <section className="grid gap-4 md:grid-cols-4">
         {steps.map(([t, d], i) => (

@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   state: text("state"),
   zip: text("zip"),
   bio: text("bio"),
+  showInFeed: boolean("show_in_feed").notNull().default(true), // first name + city in the homepage activity feed
   interests: text("interests"), // free-text "other interests"
   interestTags: jsonb("interest_tags").$type<string[]>().notNull().default([]),
   interestOther: jsonb("interest_other").$type<Record<string, string>>().notNull().default({}), // per-category "Other" text

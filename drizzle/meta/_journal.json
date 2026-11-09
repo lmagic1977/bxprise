@@ -57,6 +57,13 @@
       "when": 1794157058292,
       "tag": "0007_minor_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794208309398,
+      "tag": "0008_curvy_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }
